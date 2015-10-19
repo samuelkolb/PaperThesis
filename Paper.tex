@@ -1,9 +1,12 @@
-\documentclass{llncs}
+\def\year{2015}
+\documentclass[letterpaper]{article}
+\usepackage{aaai}
 \usepackage{graphicx}
-
 \usepackage{algorithm}
 \usepackage{algpseudocode}
+\usepackage{amsmath}
 \usepackage{amssymb}
+\usepackage{amsthm}
 \usepackage{etoolbox}
 \usepackage{color}
 \usepackage{changepage}
@@ -12,25 +15,37 @@
 \usepackage{longtable}
 \usepackage{framed}
 
+\pdfinfo{
+/Title (Learning Constraints and Optimization Criteria)
+/Author (Samuel Kolb)}
+\setcounter{secnumdepth}{0}  
+
 \graphicspath{{Graphics/}}
 
 \newcommand{\sym}[1]{\ensuremath{\mathcal{#1}}}
 \newcommand{\svm}{SVM$^{rank}$}
+
+\newtheorem{definition}{Definition}[section]
+\newtheorem{question}{Question}
+\AfterEndEnvironment{definition}{\noindent\ignorespaces}
+
+\theoremstyle{definition}
+\newtheorem{example}{Example}
+\newtheorem{experiment}{Experiment}[question]
+\newtheorem{observation}{Observation}[question]
 
 \setlength{\tabcolsep}{6pt}
 
 \begin{document}
 
 \title{Learning Constraints and Optimization Criteria}
-\author{Samuel Kolb}
-\authorrunning{Samuel Kolb} % abbreviated author list (for running head)
-%%%% list of authors for the TOC (use if author list has to be modified)
-\tocauthor{Samuel Kolb}
-\institute{KULeuven, Leuven, Belgium\\samuel.kolb@me.com}
+\author{
+  Samuel Kolb\\
+  KULeuven, Leuven, Belgium\\
+  samuel.kolb@cs.kuleuven.be
+}
 
-%\email{samuel.kolb@me.com}
-
-\maketitle              % typeset the title of the contribution
+\maketitle
 
 \begin{abstract}
 This paper presents a system that is able to automatically learn both constraints from examples and optimization criteria from rankings.
@@ -43,61 +58,45 @@ Finally, a procedure is outlined that allows weighted first order logic clauses 
 \end{abstract}
 
 \section{Introduction}
-% People use computers to solve complex problems, which are hard to solve by hand.
-% Traditionally, programs or algorithms are written to tell the computer \emph{how} to solve a particular problem.
-% These programs are essentially precise, step-by-step instructions.
-% Alternatively, problems can be described \emph{declaratively} by formulating them in a high level language.
-% Such a language describes a problem without specifying how a solution is to be found.
-% Generic programs, called solvers, are used to find solutions to problems formulated in this language.
-
-% A popular movement within declarative programming is constraint programming.
-% In constraint programming users specify variables, their domains and constraints that act upon these variables.
-% The constraint solver assigns values to the variables such that all the constraints hold.
-% This solver has a large degree of freedom in choosing a search strategy and ideally the user does not need to be familiar with the underlying algorithms.
-
-% Aside from being popular in academia, it is also being used in industrial applications\cite{Simonis:IndustrialApplicationsCP}.
-% Much of the research on constraint programming is focused on improving solvers.
-% In practice, however, it can be challenging for non-experts to formulate constraints to describe their problem\cite{Wallace:PrinciplesCP}.
-
 This research tackles the learning of constraints and optimization criteria.
-Non-experts often experience difficulties when modeling a problem using constraints\cite{Wallace:PrinciplesCP}.
+Non-experts often experience difficulties when modeling a problem using constraints \cite{Wallace:PrinciplesCP}.
 The first goal of this research is to automate the step of modeling a problem, in order to, amongst others, make constraint solving more accessible.
 In this approach a few examples of what a user considers valid solutions are used by a computer system to find constraints.
 These constraints can then be used by an existing constraint solver.
 
 Constraints are represented as logical clauses.
 This representation allows for the use of techniques from the field of Inductive Logic Programming (ILP).
-Specifically, a new implementation of the Clausal Discovery algorithm\cite{DeRaedt:ClausalDiscovery} is used.
+Specifically, a new implementation of the Clausal Discovery algorithm \cite{DeRaedt:ClausalDiscovery} is used.
 Research on constraint learning is often done independent of ILP.
-By exploiting the parallels between both fields, this research follows the same approach as Lallouet et al.\cite{Lallouet:LearningCP}.
+By exploiting the parallels between both fields, this research follows the same approach as \cite{Lallouet:LearningCP}.
 
 Hard constraints are used to distinguish solutions to a problem.
-So called soft constraints can be used to express properties, which do not have to be fulfilled by every solution.
-Weights can be assigned to such soft constraints to express their importance.
+So called soft constraints can be used to express properties which do not have to be fulfilled by every solution.
+Soft constraints are assigned weights that express their importance.
 Such weighted soft constraints can be used as optimization criteria.
-Optimal solutions are found by maximizing the sum of the weights of soft constraints that are fulfilled by the solution.
+Optimal solutions are found by maximizing the sum of the weights of soft constraints that are fulfilled by a solution.
 
 The second goal of this research is to learn from user preference and to formulate corresponding optimization criteria.
-By using rankings over a few examples, weighted soft constraints are found.
+By using rankings over a few examples, weighted soft constraints can be found.
 Both the learning of constraints as well as the learning of optimization criteria aim to bridge the gap between problems and their formal representation.
 
-The use of weighted soft constraints is inspired by the research of Campigotto et al.\cite{campigotto2011active}, amongst others.
+The use of weighted soft constraints is inspired by the research of \cite{campigotto2011active}, amongst others.
 Their work examines attempts to obtain similar results in an interactive context for propositional constraints.
 In this research, first-order logical clauses will be used.
 
-The weighted clauses cannot be directly used in a constraint solver.
+The weighted clauses cannot be directly used by a constraint solver.
 Therefore, an approach is outlined that describes how these constraints can be used in an existing solver to obtain an optimal solution in practice.
 
 This research has been conducted during the course of my masters thesis~\cite{kolb2015thesis}.
 \section{Background}
-In this section a brief overview of the important concepts and relevant literature will be provided
+In this section a brief overview of the important concepts and relevant literature will be provided.
 
 \subsection{Clauses}
 First-order logical clauses consist of a disjunction of literals.
 Literals are defined as being either an atom or a negated atom.
 Clauses are often expressed using a body and a head: $\mathit{head} \leftarrow \mathit{body}$.
 All literals containing a negation are grouped in the body and the other literals form the head of the clause.
-For example, $\lnot a_1 \lor \lnot a_2 \lor a_3 \lor a_4$ corresponds with $a_3, a_4 \leftarrow a_1, a_2$.
+For example, $\lnot a_1 \lor \lnot a_2 \lor a_3 \lor a_4$ corresponds to the clause $a_3, a_4 \leftarrow a_1, a_2$.
 
 Atoms are logical concepts that can be assigned a truth value.
 In this paper, atoms will be restricted to either the symbols $\mathit{true}$ or $\mathit{false}$ or a predicate.
@@ -108,29 +107,29 @@ Clauses are universally quantified and will, in this research, only contain vari
 
 \subsection{Learning constraints}
 Constraint learning is a hard problem.
-The search space of constraints is usually very large.
+The search space of constraints is typically very large.
 Furthermore, there are usually only a few examples to learn from, unlike in typical machine learning problems.
 
 Different systems attempt to learn constraints using different methods.
 The problem of having little examples can be alleviated by interactively generating data.
-Both the systems, Conacq2\cite{bessiere2007query} en QuAcq\cite{bessiere2013constraint}, generate (partial) examples and query the user about their validity.
+Both the systems Conacq2 \cite{bessiere2007query} en QuAcq \cite{bessiere2013constraint} generate (partial) examples and query the user about their validity.
 
-ModelSeeker\cite{Beldiceanu:ModelSeeker} attempts to structure the problem variables in different ways.
-The system then tests for different global constraints if they hold within this structure.
+ModelSeeker \cite{Beldiceanu:ModelSeeker} attempts to structure the problem variables in different ways.
+The system then tests for different global constraints whether they hold within this structure.
 This approach allows for constraint learning from a few examples.
 
-As mentioned earlier, the research of Lallouet et al.\cite{Lallouet:LearningCP} already tried to use ILP techniques to learn constraints.
+As mentioned earlier, the research of \cite{Lallouet:LearningCP} already tried to use ILP techniques to learn constraints.
 In their approach, the search space of constraints is explored in a bidirectional manner, primarily using negative examples.
 
 
 \subsection{Clausal Discovery}
-The clausal discovery algorithm proposed by De Raedt et al.\cite{DeRaedt:ClausalDiscovery} attempts to learn first order logic clauses from positive examples.
-By using a refinement operator, the search space is traversed by incrementally generalizing clauses until they cover all examples, starting from the empty clause~($\square$).
+The clausal discovery algorithm proposed by \cite{DeRaedt:ClausalDiscovery} attempts to learn first order logic clauses from positive examples.
+Using a refinement operator, the search space is traversed by incrementally generalizing clauses until they cover all examples, starting from the empty clause~($\square$).
 The result set consists of the most specific clauses covering all examples.
 This research uses the clausal discovery algorithm on a high level but provides a very different implementation than the original clausal discovery engine.
 
 \subsection{Logic Solver}
-The logic system IDP\cite{de2013prototype,wittocx2008idp} is used to calculate whether examples satisfy clauses and is used as a theorem prover.
+The logic system IDP \cite{de2013prototype,wittocx2008idp} is used to calculate whether examples satisfy clauses and is used as a theorem prover.
 It supports an extension of first order logic ($FO(\cdot)$) and can also be used to generate new solutions.
 Background knowledge is given as an IDP theory.
 
@@ -140,7 +139,7 @@ Formulas can be rewritten into a special form called the conjunctive normal form
 An extension of this problem is the Maximum Satisfiability Problem (MAX-SAT).
 In MAX-SAT the amount of satisfied clauses is maximized.
 By assigning positive integer weights to clauses and maximizing the sum of the weights of satisfied clauses, one obtains the weighted MAX-SAT problem.
-The work by Campigotto et al.\cite{campigotto2011active} attempts to learn propositional formulas en weights automatically.
+The work by \cite{campigotto2011active} attempts to learn propositional formulas en weights automatically.
 Inspired by their results, this research tries to learn first-order logic optimization criteria.
 The resulting optimization problem can be seen as an extension of weighted MAX-SAT in which the clauses are in first-order logic.
 
@@ -162,9 +161,9 @@ They contain a set of objects and exhaustively describe all relations (predicate
 The learned clauses are independent of the specific objects within the examples and contain only variables.
 
 \begin{example}
-  Consider sudoku as an example of a problem, where hard constraints are to be found.
+  Consider sudoku as an example of a problem where hard constraints are to be found.
   Given one or more solved sudokus, the learning system has to identify the rules of the game.
-  Since the learned clauses only contain universally quantified variables, for example $4 \times 4$ sudokus can be used to find constraints.
+  Since the learned clauses only contain universally quantified variables, for example $4 \times 4$ sudokus could be used to find constraints.
   The learned constraints are independent of the size of the sudoku and can also be used to solve $9 \times 9$ sudokus, for example.
 
   In some problems, one is interested in regularities that  often but not always occur.
@@ -187,7 +186,7 @@ The weighted clauses can be used to calculate a score for every example
 \begin{eqnarray*}
   \sum\limits_{\mathit{weight}, \mathit{c}} \mathit{weight} \cdot v_{c}
 \end{eqnarray*}
-With $v_c = 1$ if the clause $c$ is satisfied by the example and $v_c = 0$ if the $c$ is not satisfied.
+With $v_c = 1$ if the clause $c$ is satisfied by the example and $v_c = 0$ if $c$ is not satisfied.
 These scores allow for a total order over all examples to be defined. 
 
 \begin{example}
@@ -209,7 +208,7 @@ A third goal of this research is to show how these constraints and especially th
 
 \end{figure}
 
-In this research, both constrain learning and learning optimization criteria were implemented.
+In this research, both constraint learning and learning optimization criteria were implemented.
 An overview is presented in figure~\ref{fig:struktuur}.
 Clauses are learned using examples.
 To find weighted clauses, first the constraint learning system is used to find soft constraints.
@@ -228,15 +227,15 @@ Symmetric predicates are predicates for which the order of the terms does not ma
 If optimization criteria are to be learned, a set of rankings over the given examples is also provided.
 
 \begin{example}
-  Imagine problem that describes humans with a type \textit{human} and predicates human(\textit{human}), male(\textit{human}) and female(\textit{human}).
+  Imagine a problem that describes humans with a type \textit{human} and predicates human(\textit{human}), male(\textit{human}) and female(\textit{human}).
   An example could contain the constants S and A, both of type \textit{human}, and the relations: human(S), human(A), male(S), female(A).
-  Clauses to be learned would be: human(x) $\leftarrow$ male(x) and human(x) $\leftarrow$ female(x),  female(x) $\lor$ male(x) $\leftarrow$ human(x) and \textit{false} $\leftarrow$ female(x) $\land$ male(x).
+  Clauses to be learned would be: human(x) $\leftarrow$ male(x), human(x) $\leftarrow$ female(x),  female(x) $\lor$ male(x) $\leftarrow$ human(x) and \textit{false} $\leftarrow$ female(x) $\land$ male(x).
 \end{example}
 \subsection{Clausal Discovery}
 The clause learning system is based on the clausal discovery algorithm.
 The logical system IDP is used for two essential functions: $\mathit{covers}$ and $\mathit{entails}$.
 The $\mathit{covers}$ function calculates which examples are covered by a clause.
-The $\mathit{entails}$ function calculates whether an accepted clause is logically entailed by background knowledge or clauses already in the result set.
+The $\mathit{entails}$ function calculates whether an accepted clause is logically entailed by background knowledge or clauses that are already in the result set.
 
 Every clause is subjected to two additional tests that attempt to eliminate redundant clauses early on.
 The subset-test determines whether the clause is a superset of another clause that has been accepted earlier.
@@ -244,7 +243,7 @@ If such a clause exists and that clause covers the same examples as the new clau
 Otherwise it will be tested whether the clause covers enough examples.
 Clauses that do not cover enough examples are refined by the refinement operator.
 The refined clauses will be added to the working queue.
-If a clause offers enough examples, the $\mathit{entails}$ functions is calculated to decide whether the accepted clause should be added to the result set.
+If a clause covers enough examples, the $\mathit{entails}$ functions is calculated to decide whether the accepted clause should be added to the result set.
 
 Refinement is an important step.
 Clauses are extended to be more general and potentially cover more examples.
@@ -263,7 +262,7 @@ Examples are characterized by the soft constraints (clauses) which it satisfies.
 Therefore, every example can be translated to a vector of boolean features.
 Each feature $f_i$ corresponds with one of the clauses and is \emph{1} if the clause covers the example and \emph{0} if it does not.
 Existing machine learning software can be used to learn a linear \emph{scoring} function $\sum_i w_i \cdot f_i$ over these features based on the given rankings.
-Hereby, positive weights are assigned to every feature to express its importance.
+Hereby, weights are assigned to every feature to express its importance.
 For an unseen example, the feature vector is computed by calculating what clauses cover the new example.
 The scoring function can then be used to calculate a score for that example.
 
@@ -302,7 +301,7 @@ Solvers, such as IDP, can use clauses directly as hard constraints to generate a
 There is no solver that can use the chosen optimization criteria directly.
 Weighted MAX-SAT solvers use propositional clauses and only allow for positive weights.
 
-This optimization task can be solved directly in IDP, using inductive definitions, aggregates and minimization.
+This optimization task can be solved in IDP, using inductive definitions, aggregates and minimization.
 The only limitation is that the weights must be integer values.
 Therefore, the weights of the clauses are divided by the smallest absolute weight, multiplied by a constant and rounded to the closest integer if necessary.
 Removing this restriction for IDP is currently being researched and future releases might be able to deal with rational numbers directly.
@@ -336,34 +335,34 @@ These kind of constraints may help a constraint solver to work more efficiently.
 
 If the limits on the number of variables or literals per clause are too large, constraints are found that over-fit the training data.
 These constraints are too specific and will exclude valid solutions.
-On the other hand, if the limits chosen are too small, the necessary constraints will not be found.
+On the other hand, if the chosen limits are too small, the necessary constraints will not be found.
 
 \begin{table}
-  \caption{Overview of execution times (average over 8 runs)}
+  \caption{Execution times overview (average over 8 runs)}
   \begin{tabularx}{\linewidth}{rl|ll}
 
-\textbf{Omitted}  & \textbf{Problem}    & \textbf{Time (baseline)}  & \textbf{Average time (s)}\\
+\textbf{Omitted}  & \textbf{Problem}    & \textbf{Average time (s)} \\ % & \textbf{Time (baseline)}  
 \toprule
-Nothing          & Map coloring  & 1.000       & 1.581   ($\pm$ 0.117)        \\
-   (baseline)                   & Sudoku    & 1.000               & 4.787   ($\pm$ 0.062)    \\
-                      & Elevator    & 1.000             & 3.182   ($\pm$ 0.073)  \\
-                      & Co-housing  & 1.000             & 25.903  ($\pm$ 0.446)  \\
+Nothing           & Map coloring        & 1.581   ($\pm$ 0.117)     \\ % & 1.000                     
+   (baseline)     & Sudoku              & 4.787   ($\pm$ 0.062)     \\ % & 1.000                     
+                  & Elevator            & 3.182   ($\pm$ 0.073)     \\ % & 1.000                     
+                  & Co-housing          & 25.903  ($\pm$ 0.446)     \\ % & 1.000                     
 \midrule
-Range      & Map coloring  & 2.928           & 4.629   ($\pm$ 0.199)\\
-      restriction                  & Sudoku    & 3.367             & 16.118  ($\pm$ 0.154)  \\
-                        & Elevator    & 12.713          & 40.453  ($\pm$ 0.319)\\
-                        & Co-housing  & 8.021           & 207.768 ($\pm$ 0.330)\\
+Range             & Map coloring        & 4.629   ($\pm$ 0.199)     \\ % & 2.928                     
+restriction       & Sudoku              & 16.118  ($\pm$ 0.154)     \\ % & 3.367                     
+                  & Elevator            & 40.453  ($\pm$ 0.319)     \\ % & 12.713                    
+                  & Co-housing          & 207.768 ($\pm$ 0.330)     \\ % & 8.021                     
 \midrule
-Connected    & Map coloring  & 1.005           & 1.589   ($\pm$ 0.110)\\
-    clauses       & Sudoku    & 1.476                          & 7.068   ($\pm$ 0.150)    \\
-                        & Elevator    & 1.935           & 6.157   ($\pm$ 0.114)\\
-                        & Co-housing  & 4.001           & 103.633 ($\pm$ 0.131)\\
+Connected         & Map coloring        & 1.589   ($\pm$ 0.110)     \\ % & 1.005                     
+    clauses       & Sudoku              & 7.068   ($\pm$ 0.150)     \\ % & 1.476                     
+                  & Elevator            & 6.157   ($\pm$ 0.114)     \\ % & 1.935                     
+                  & Co-housing          & 103.633 ($\pm$ 0.131)     \\ % & 4.001                     
   \end{tabularx}
   \label{tbl:uitvoering}
 \end{table}
 
 \paragraph{Efficiency}
-Table~\ref{tbl:uitvoering} shows the execution time for several experiments demonstrating the effect of the syntactical restrictions.
+Table~\ref{tbl:uitvoering} shows the execution time for several experiments, demonstrating the effect of the syntactical restrictions.
 Moreover, all efficiency measures (i.e. symmetric predicates, range restriction and connected clauses) are able to improve the execution time.
 
 Further experiments show that increasing the number of variables or literals per clause impacts the efficiency.
@@ -407,9 +406,9 @@ In the first approach, the examples are split into disjoint train and test sets.
 The second approach uses all examples as train as well as test set.
 An underlying model of four weighted soft constraints is used to calculate a score for each example.
 All possible pairs of examples are generated and translated to pairwise inequalities using the calculated scores.
-These rankings are given as input for learning.
+A fraction of these rankings are given as input for learning.
 Experiments use different sizes of training sets and different fractions of rankings.
-Noise is simulated by flipping a fraction of the selected rankings.
+Noise is simulated by flipping the inequalities for a fraction of the selected rankings.
 
 The experiments are run 8 times, and the examples and rankings to be used as well as the rankings to be inverted are selected randomly.
 Optimization criteria are searched based on the training set and the selected inequalities.
@@ -507,10 +506,11 @@ All the experiments were conducted with problems of limited size and the computa
 The author thanks his promoters Dr. Luc De Raedt en Dr. ir. Anton Dries.
 Furthermore, he expresses his gratitude for the help provided by Bart Bogaerts, Dr. Jesse Davis, Dr. Marc Denecker and Vladimir Dzyuba.
 
+\newpage
 
 %
 % ---- Bibliography ----
 %
-\bibliographystyle{plain}
+\bibliographystyle{aaai}
 \bibliography{Bibliography}
 \end{document}
