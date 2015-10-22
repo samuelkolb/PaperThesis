@@ -48,13 +48,21 @@
 \maketitle
 
 \begin{abstract}
-This paper presents a system that is able to automatically learn both constraints from examples and optimization criteria from rankings.
-Both hard and soft constraints can be learned and constraints are represented as first order logical clauses.
-Choosing such clauses as representations enables the use of ILP techniques such as clausal discovery.
-In this research, optimization criteria are represented as weighted clauses.
-For all examples, the clause learning system could find the essential constraints efficiently.
-The learning system for optimization criteria is shown to achieve accurate results and can learn criteria that identify the correct optimal solution even for few examples and noisy rankings.
-Finally, a procedure is outlined that allows weighted first order logic clauses to be used for optimization in practice.
+% This paper presents a system that is able to automatically learn both constraints from examples and optimization criteria from rankings.
+% Both hard and soft constraints can be learned and constraints are represented as first-order logical clauses.
+% Choosing such clauses as representations enables the use of ILP techniques such as clausal discovery.
+% In this research, optimization criteria are represented as weighted clauses.
+% For all examples, the clause learning system could find the essential constraints efficiently.
+% The learning system for optimization criteria is shown to achieve accurate results and can learn criteria that identify the correct optimal solution even for few examples and noisy rankings.
+% Finally, a procedure is outlined that allows weighted first-order logic clauses to be used for optimization in practice.
+
+While there exist several approaches in the constraint programming community to learn a constraint theory, few of them have considered the learning of constraint optimization problems.
+To alleviate this situation, we introduce an initial approach to learning first-order weighted MAX-SAT theories. 
+It employs inductive logic programming techniques to learn a set of first-order clauses and then uses preference learning techniques to learn the weights of the clauses.
+In order to learn these weighted clauses, the clausal optimization system uses examples of possible worlds and a set of preferences that state what examples are preferred over others.
+% "Change" The examples take the form of rankings that state that one possible world is preferred over another one.
+The technique is also empirically evaluated on a number of examples.
+
 \end{abstract}
 
 % -------------------------------------------------
@@ -62,34 +70,65 @@ Finally, a procedure is outlined that allows weighted first order logic clauses 
 % -------------------------------------------------
 
 \section{Introduction}
-This paper introduces an approach for learning constraints and optimization criteria.
-Using constraints and optimization criteria such as the ones proposed in this paper allows problems to be modeled \emph{declaratively}.
-This means that the representation is decoupled from the process of finding a (optimal) solution for the problem.
-However, non-experts often experience difficulties when modeling a problem using constraints \cite{Wallace:PrinciplesCP}.
-The first goal of this research is to automate the step of modeling a problem, in order to, amongst others, make constraint solving more accessible.
-In this approach a few examples of what a user considers valid solutions are used by a computer system to find constraints.
-These constraints can then be used by an existing constraint solver.
+% This paper introduces an approach for learning constraints and optimization criteria.
+% Using constraints and optimization criteria such as the ones proposed in this paper allows problems to be modeled \emph{declaratively}.
+% This means that the representation is decoupled from the process of finding a (optimal) solution for the problem.
+% However, non-experts often experience difficulties when modeling a problem using constraints \cite{Wallace:PrinciplesCP}.
+% The first goal of this research is to automate the step of modeling a problem, in order to, amongst others, make constraint solving more accessible.
+% In this approach a few examples of what a user considers valid solutions are used by a computer system to find constraints.
+% These constraints can then be used by an existing constraint solver.
 
-Constraint learning attempts to find constraints automatically given examples.
-By using first-order logical clauses as representation for constraints, techniques from Inductive Logic Programming (ILP) can be used for learning.
-Hereby, this research follows the same approach as \cite{Lallouet:LearningCP}, exploiting parallels between ILP and constraint learning.
-In this case, the clausal discovery algorithm \cite{DeRaedt:ClausalDiscovery} is used to find constraints.
+% Constraint learning attempts to find constraints automatically given examples.
+% By using first-order logical clauses as representation for constraints, techniques from Inductive Logic Programming (ILP) can be used for learning.
+% Hereby, this research follows the same approach as \cite{Lallouet:LearningCP}, exploiting parallels between ILP and constraint learning.
+% In this case, the clausal discovery algorithm \cite{DeRaedt:ClausalDiscovery} is used to find constraints.
 
-There has been increasing interest in formulating declarative models for constraint satisfaction as well as optimization problems.
-By identifying soft constraints that are only satisfied by some examples and assigning weights to them based on their importance, an optimal solution can be sought.
-The use of weighted soft constraints to model user preferences is inspired, amongst others, by the research of \cite{campigotto2011active}.
-Their work examines attempts to obtain similar results in an interactive context for propositional constraints.
-In this research, first-order constraints are used and optimization criteria are modeled using a first-order version of weighted MAX-SAT.
-This paper also outlines how these constraints can be used in an existing solver to obtain an optimal solution in practice.
+% There has been increasing interest in formulating declarative models for constraint satisfaction as well as optimization problems.
+% By identifying soft constraints that are only satisfied by some examples and assigning weights to them based on their importance, an optimal solution can be sought.
+% The use of weighted soft constraints to model user preferences is inspired, amongst others, by the research of \cite{campigotto2011active}.
+% Their work examines attempts to obtain similar results in an interactive context for propositional constraints.
+% In this research, first-order constraints are used and optimization criteria are modeled using a first-order version of weighted MAX-SAT.
+% This paper also outlines how these constraints can be used in an existing solver to obtain an optimal solution in practice.
 
-Since the underlying goal of this research is to facilitate the generation of a formal representation, the input format aims to be easy to use.
-It has been a key focus to make reasonable assumptions concerning the knowledge a user can provide.
-One important difference compared to similar research (including \cite{campigotto2011active}) is that users provide partial rankings over examples instead of absolute scores.
+% Since the underlying goal of this research is to facilitate the generation of a formal representation, the input format aims to be easy to use.
+% It has been a key focus to make reasonable assumptions concerning the knowledge a user can provide.
+% One important difference compared to similar research (including \cite{campigotto2011active}) is that users provide partial rankings over examples instead of absolute scores.
 
-This paper is based on research that has been conducted during the course of my masters thesis~\cite{kolb2015thesis}.
-The key contribution presented in this paper is a novel approach for learning weighted first order clauses from rankings to capture user preferences.
-In this context an implementation of clausal discovery has been realized that supports soft constraints.
-Moreover, an approach to obtaining optimal solutions for the weighted first order clauses is presented.
+% This paper is based on research that has been conducted during the course of my masters thesis~\cite{kolb2015thesis}.
+% The key contribution presented in this paper is a novel approach for learning weighted first-order clauses from rankings to capture user preferences.
+% In this context an implementation of clausal discovery has been realized that supports soft constraints.
+% Moreover, an approach to obtaining optimal solutions for the weighted first-order clauses is presented.
+
+An important class of declarative models is concerned with (discrete) constrained optimization problems.
+These combine constraint satisfaction problems with an optimization function that specifies which solutions are optimal.
+While these models are powerful and elegant, they are often also hard to obtain.
+\cite{Wallace:PrinciplesCP} shows that the task of modeling constraint satisfaction problems is difficult, certainly for non-experts.
+This has motivated several researchers to investigate whether such models can be learned. 
+
+Learning constraints has been addressed in constraint programming (e.g. \cite{Beldiceanu:ModelSeeker}, \cite{bessiere2013constraint}) and inductive logic programming (e.g. \cite{DeRaedt:ClausalDiscovery}).
+Recent efforts \cite{Lallouet:LearningCP} have attempted to combine these two fields.
+Furthermore, \cite{campigotto2011active}) have learned propositional MAX-SAT theories from examples together with their target value.
+%"Expand something here yet?" ...%Each example ....
+Also, work in statistical relational learning (SRL) on learning the structure of Markov Logic networks (MLN) or other SRL models is relevant, as MAP inference can be used to query for the most likely state. 
+
+We use weighted first-order logical theories to represent constraint optimization problems.
+The weights will then capture the optimization function, and (first-order) weighted MAX-SAT can be used to determine the \emph{best} solutions.
+Furthermore, we shall learn such models by combining inductive logic programming (ILP) principles (such as clausal discovery \cite{DeRaedt:ClausalDiscovery}) with preference learning.
+ILP will be used to learn the clausal theories, and preference learning to determine the weights.
+Therefore, users will provide examples of possible worlds and a set of preferences that specify which examples are preferred over other ones.
+% "Unify usage of examples / preferences" Therefore, the examples will take the form of rankings, where each ranking specifies that one particular possible world is preferred over another one.
+This setting extends traditional constraint learning and ILP approaches with the ability to learn soft constraint and to integrate constraint satisfaction and optimization.
+It extends the approach of \cite{campigotto2011active} as first-order theories are learned and preferences are used rather than from examples with target values.
+Moreover, it differs the SRL and MLN approaches in that one learns from preferences rather than from examples.
+ % and rankings are used rather than possible worlds + the target value of the examples, and differs from the SRL and MLN approaches in that one learns from rankings rather than from examples. 
+
+This paper is organized as follows.
+Section~2 will explain some background knowledge and related work.
+In Section~3 we shall introduce the formalism and the setting and in Section~4 the algorithm and the clausal optimization system to solve this problem.
+In Section~5 we shall report on some experiments, and finally, in Section~6, we conclude.
+% "Rewrite" In Section 2, we shall introduce the formalism and the setting,
+% "Rewrite" in Section 3, the algorithm and system X to solve this problem, in Section 4, 
+% "Rewrite" we shall report on some experiments, and Finally, in Section 5 ,we conclude
 
 % -------------------------------------------------
 % Background
@@ -99,16 +138,30 @@ Moreover, an approach to obtaining optimal solutions for the weighted first orde
 In this section a brief overview of the important concepts and relevant literature will be provided.
 
 \paragraph{Clauses}
-First-order logical clauses consist of a disjunction of literals.
-Literals are defined as being either an atom (positive literal) or a negated atom (negative literal).
-Clauses are often expressed using a body and a head: $\mathit{head} \leftarrow \mathit{body}$.
-Hereby, positive literals are grouped in the head and negative literals are grouped in the body.
-%For example, $\lnot a_1 \lor \lnot a_2 \lor a_3 \lor a_4$ corresponds to the clause $a_3, a_4 \leftarrow a_1, a_2$.
-
-Terms are used to reason about objects and consist of either constants denoting specific objects or variables that can represent any object.
+In order to reason about clauses, the standard notions of (function free) first-order logic are described.
+An atom $p(t_1, t_2, ..., t_n)$ consists of a predicate symbol $p$ that is applied to $n$ terms $t_i$.
+Terms are either constants or variables.
 In this paper constants will be written in uppercase ($\mathit{John}$) and variables in lowercase ($\mathit{x}$).
-Relations between logical objects are represented by predicates, consisting of a predicate symbol and a set of terms (e.g. $\mathit{married(John, x)}$).
-Predicates are atoms and can be assigned a truth value.
+A literal can be an atom $a$ (positive literal) or a negated atom $\lnot a$ (negative literal).
+Clauses are disjunctions of literals $l_1 \lor l_2 \lor ... \lor l_k$ and are assumed to be universally quantified.
+A clause can be expressed using a body and a head $\mathit{head} \leftarrow \mathit{body}$.
+Hereby, positive literals are grouped in the head and negative literals are grouped in the body.
+Sometimes clauses are also written as a set of literals $\{l_1, l_2, ..., l_k\}$.
+
+Atoms are grounded if they only contain constants.
+A Herbrand interpretation is a set of ground atoms.
+All atoms in the interpretation are assumed to be true and all other possible ground atoms are assumed to be false.
+$\sym{I} \models c$ is used to denote that interpretation \sym{I} satisfies the clause $c$.
+
+\paragraph{Optimization}
+The Boolean Satisfiability Problem (SAT) attempts to determine whether a propositional formula can be satisfied.
+Formulas can be rewritten into a special form called the Conjunctive Normal Form (CNF), which consists of a conjunction of clauses (disjunctions).
+An extension of this problem is the Maximum Satisfiability Problem (MAX-SAT), which is an optimization problem and attempts to maximize the amount of satisfied clauses.
+By assigning positive integer weights to clauses and maximizing the sum of the weights of satisfied clauses, one obtains the weighted MAX-SAT problem.
+
+Related work \cite{campigotto2011active} has creates a weighted MAX-SAT problem by learning propositional clauses and weights using examples and absolute scores.
+Inspired by their results, our research tries to learn first-order logic clauses and weights using examples and rankings.
+The resulting optimization problem can be seen as an extension of weighted MAX-SAT in which the clauses are in first-order logic.
 
 \paragraph{Learning constraints}
 Constraint learning is a hard problem.
@@ -126,24 +179,14 @@ As mentioned earlier, the research of \cite{Lallouet:LearningCP} already tried t
 In their approach, the search space of constraints is explored in a bidirectional manner, primarily using negative examples.
 
 \paragraph{Clausal Discovery}
-The clausal discovery algorithm proposed by \cite{DeRaedt:ClausalDiscovery} attempts to learn first order logic clauses from positive examples.
+The clausal discovery algorithm \cite{DeRaedt:ClausalDiscovery} attempts to learn first-order logic clauses from positive examples.
 Using a refinement operator, the search space is traversed by incrementally generalizing clauses until they cover all examples, starting from the empty clause~($\square$).
 The result set consists of the most specific clauses covering all examples.
 
-\paragraph{Logic Solver}
-The logic system IDP \cite{de2013prototype,wittocx2008idp} is used to calculate whether examples satisfy clauses and is used as a theorem prover.
-It supports an extension of first order logic ($FO(\cdot)$) and can also be used to generate new solutions.
-Background knowledge is given as an IDP theory.
-
-\paragraph{Optimization}
-The Boolean Satisfiability Problem (SAT) attempts to determine whether a propositional formula can be satisfied.
-Formulas can be rewritten into a special form called the conjunctive normal form (CNF), which consists of a conjunction of clauses (disjunctions).
-An extension of this problem is the Maximum Satisfiability Problem (MAX-SAT).
-In MAX-SAT the amount of satisfied clauses is maximized.
-By assigning positive integer weights to clauses and maximizing the sum of the weights of satisfied clauses, one obtains the weighted MAX-SAT problem.
-The work by \cite{campigotto2011active} attempts to learn propositional formulas and weights automatically using examples and absolute scores.
-Inspired by their results, this research tries to learn first-order logic clauses and weights using examples and rankings.
-The resulting optimization problem can be seen as an extension of weighted MAX-SAT in which the clauses are in first-order logic.
+% \paragraph{Logic Solver} " v ------ v   Dissolve"
+% The logic system IDP \cite{de2013prototype,wittocx2008idp} is used to calculate whether examples satisfy clauses and is used as a theorem prover.
+% It supports an extension of first-order logic ($FO(\cdot)$) and can also be used to generate new solutions.
+% Background knowledge is given as an IDP theory.
 
 % -------------------------------------------------
 % Problem Statement
@@ -156,7 +199,8 @@ Since it aims to simplify the process of generating formal representations it sh
 \subsection{Constraint learning}
 \emph{Given a set of examples and a limit $t$, the goal is to find maximally specific clauses that are satisfied by at least $t$ of the given examples.}
 \\\\
-Examples consist of a domain and an exhaustive description of all relations that hold on the domain objects.
+Examples are Herbrand interpretations.
+They consist of set of constants, the domain, and all ground atoms over these constants that are true.
 The learned clauses are domain-independent and contain only variables.
 
 % \begin{example} " TODO - necessary?"
@@ -172,19 +216,24 @@ The learned clauses are domain-independent and contain only variables.
 % \end{example}
 
 \subsection{Learning optimization criteria}
-\emph{Given a set of examples and a set of partial rankings over these examples, the goal is to identify soft constraints and weights learn such that the order described by these optimization criteria maximally corresponds with the given rankings.}
+\emph{Given a set of examples \sym{E} and a set of preferences \sym{P} over these examples, the goal is to learn soft constraints and weights such that the order described by these optimization criteria maximally corresponds with~\sym{P}.}
 \\\\
-The soft constraints consist of clauses that are satisfied by some but not all of the examples.
+Every preference $p \in \sym{P}$ describes a relative order $e_1 \succ e_2 \succ ... \succ e_n$ over a subset of examples $\{e_1, e_2, ..., e_n\} \subseteq \sym{E}$.
+A preference $e_1 \succ e_2$ indicates that out of examples $e_1$ and $e_2$ the user prefers $e_1$.
+
+The soft constraints consist of clauses \sym{C} that are satisfied by some but not all of the examples.
 They can be identified using a system that implements the constraint learning task.
-Partial rankings reason over sets of examples and describe an order over them (e.g. the ranking $e_i > e_j$ expresses the users preference of example $e_i$ over example $e_j$).
-The weighted clauses (i.e. tuples $(weight, clause)$) can be used to calculate a score for every example:
+The weighted clauses \sym{W} are tuples $\mathbb{R} \times \sym{C}$ that can be used to calculate a score for any example $e$:
 \begin{eqnarray*}
-  score(e) = \sum\limits_{(\mathit{w}, \mathit{c})} \mathit{w} \cdot \mathbf{1}_{c \text{ covers } e}
+  score(e) = \sum\limits_{(\mathit{w}, \mathit{c}) \in \sym{W}} \mathit{w} \cdot \mathbf{1}_{e \models c}
 \end{eqnarray*}
 
-\begin{example}[Moving]
+\begin{example}[Moving] "Rewrite"
   \label{ex:moving}
   Consider the scenario moving to a new city.
+  Predicates $\mathit{live\_in}, \mathit{work\_in}$ and $\mathit{school\_in}$ indicate the choice of housing, job and school.
+  There might be different areas in the city which 
+
   The user has to choose a job, a place to live and a school.
   There are multiple job offers, houses and schools available across different areas of the city.
   User provided examples include a choice of where to work, where to live and what school is chosen.
@@ -203,30 +252,29 @@ Aside from learning optimization criteria, this paper presents an approach to us
 
 \section{Approach}
 In this research, both constraint learning and learning optimization criteria were implemented.
-Clauses are learned using examples.
-The clause learning implementation uses the IDP system to test if clauses satisfy the examples and identify redundant clauses.
-When learning weighted clauses, soft constraints are first identified in the examples using the clause learning implementation.
-These constraints are assigned weights based on the given rankings.
+A two-step approach is used to learn optimization criteria.
+First, clauses learning is used to find soft constraints in the given examples.
+Then, user-provided preference information is used to learn weights for these constraints.
+
+% "Dissolve" The clause learning implementation uses the IDP system to test if clauses satisfy the examples and identify redundant clauses.
 
 \subsection{Input}
-The input consists of global definitions and a set of examples.
-Definitions consist of either typing information or predicate definitions.
-Typing information relates directly to the problem domain, improves the accuracy and efficiency of the learned clauses and is usually easy to provide for the user.
-Predicate definitions define predicate symbols and the types of their terms.
-Two special types of predicates are allowed: calculated predicates and symmetric predicates.
-Calculated predicates are not included in examples, instead background knowledge is used to generate them.
-This background knowledge is passed directly to the IDP system.
-Symmetric predicates are predicates for which the order of the terms does not matter.
-Every example contains a domain consisting of a set of constants and an exhaustive list of the relations (predicates) that hold on these constants.
-If optimization criteria are to be learned, a set of pairwise over the given examples is also provided.
-Rankings are used instead of absolute scores since rankings only concern few examples at a time.
-Because rankings only ask for relative positioning of a few examples, they are easier to provide.
+The input consists of global definitions that specify the types and predicates that are used to describe examples and a set of examples \sym{E}.
+Typing information relates directly to the problem domain and is usually easy to provide.
+Including types also improves the accuracy and efficiency of the learned clauses.
 
-\begin{example}
+Examples are interpretations, they specify the constants in their domain and then all predicates that are true.
+Predicates can also be generated by background knowledge, in which case they are not included in the example.
+
+When learning optimization criteria, preference information is also provided by the user.
+Each preference is of the form $e_1 \succ e_2 \succ ... \succ e_n$ with $e_i \in \sym{E}$.
+Preference look at the relative position of a few examples at a time and are typically easier to provide than absolute scores for all examples.
+
+\begin{example} "Rewrite"
   \label{ex:moving-input}
   Consider the moving problem (example~\ref{ex:moving-input}).
   A model could, for example, use a type \textit{Area} and predicate definitions low\_crime(\textit{Area}), cheap(\textit{Area}), school\_in(\textit{Area}), work\_in(\textit{Area}) and live\_in(\textit{Area}).
-  Examples would that specify various areas $A_i$ and describe the conditions (e.g. cheap($A_1$), low\_crime($A_2$)) as well as the users choices (e.g. school\_in($A_2$), work\_in($A_2$), live\_in($A_1$)).
+  Examples would then specify various areas $A_i$ and describe the conditions (e.g. cheap($A_1$), low\_crime($A_2$)) as well as the users choices (e.g. school\_in($A_2$), work\_in($A_2$), live\_in($A_1$)).
   % Imagine a problem that describes humans with a type \textit{human} and predicates human(\textit{human}), male(\textit{human}) and female(\textit{human}).
   % An example could contain the constants S and A, both of type \textit{human}, and the relations: human(S), human(A), male(S), female(A).
   % Clauses to be learned would be: human(x) $\leftarrow$ male(x), human(x) $\leftarrow$ female(x),  female(x) $\lor$ male(x) $\leftarrow$ human(x) and \textit{false} $\leftarrow$ female(x) $\land$ male(x).
@@ -237,15 +285,16 @@ Because rankings only ask for relative positioning of a few examples, they are e
   \label{alg:cd}
 
   \begin{algorithmic}
-  \State $Q \gets \{\square\}$, $\sym{T} \gets \{\}$
-  \While{$\lnot isempty(Q)$}
-    \State $c \gets next(Q)$
-    \If{$covers(c, \textit{Examples})$}
-      \If{$\lnot entails(\sym{T}, c)$}
+  \State Given: Examples \sym{E} and threshold $t$
+  \State $\sym{Q} \gets \{\square\}$, $\sym{T} \gets \{\}$
+  \While{$\#\sym{Q} > 0$}
+    \State $c \gets next(\sym{Q})$
+    \If{$\#\{e \in \sym{E} | e \models c\} \geq t$}
+      \If{$\lnot (\sym{T} \models c)$}
         \State $\sym{T} = \sym{T} \cup c$
       \EndIf
     \Else
-      \State $Q \gets Q \cup \rho(c)$
+      \State $\sym{Q} \gets \sym{Q} \cup \rho(c)$
     \EndIf
   \EndWhile
   \State $\sym{T} \gets prune(\sym{T})$
@@ -255,23 +304,33 @@ Because rankings only ask for relative positioning of a few examples, they are e
 
 \subsection{Clausal Discovery}
 The clause learning system is based on the clausal discovery algorithm (alg.~\ref{alg:cd}).
-The logical system IDP is used for two essential functions: $\mathit{covers}$ and $\mathit{entails}$.
-The $\mathit{covers}$ function calculates which examples are covered by a clause.
-The $\mathit{entails}$ function calculates whether an accepted clause is logically entailed by background knowledge or clauses that are already in the result set.
+Note the double use of the $\models$ operator.
+On the one hand, it is used in $e \models c$ to denote that clause~$c$ is true in the example (interpretation)~$e$ ($c$ covers $e$).
+This test is used to compute if a clause covers enough examples.
+On the other hand, in $\sym{T} \models c$ it signifies that \sym{T} entails $c$ (i.e. for every interpretation it holds that if \sym{T} is true, $c$ is also true).
+The algorithm uses this test to remove redundant clauses.
+For both cases the IDP knowledge base system \cite{de2013prototype,wittocx2008idp} is used to compute $\models$.
+The algorithm can find soft constraints ($t < \# \sym{E}$) or hard constraints ($t = \# \sym{E}$).
 
-Starting with the empty clause, clauses are refined until they cover enough examples.
-If a clause covers enough examples it is added to result set, provided it is not entailed by background knowledge or other clauses in the result set.
-To avoid extensive calls to $\mathit{covers}$ and $\mathit{entails}$, two additional tests are used.
-The subset-test rejects clauses that are supersets of a clause that covers the same or all examples and has been accepted earlier.
-Because clauses can be formulated in multiple ways, a representative-test is used to remove clauses that are not in canonical form.
-
-In the refinement step, clauses are extended to be more general and potentially cover more examples.
-The refinement operator uses a list of atoms that may be added to a clause.
-This list is calculated in advance, given a maximal amount of variables.
+Starting with the empty clause ($\square$), clauses are refined until they cover enough examples.
+If a clause covers enough examples it is added to result set, provided it is not entailed by clauses in the result set.
+In the refinement step, a clause $c = \{l_1, l_2, ..., l_k\}$ is extended by adding a new literal $l$.
+The new clause, $c' = c \cup \{l\}$ is more than general than $c$ ($c' \models c$) and potentially covers more examples.
+By adding just one literal the refinement operator $\rho$ generates a set of clauses that are minimally more general.
+In order to do this efficiently, a list of atoms is pre-calculated in advance, given a maximal amount of variables that can occur within a clause.
 Within the body and head of a clause, atoms may only be added in a specific order to avoid generating redundant clauses.
+The implementation natively supports symmetric predicates for which the order of the terms do not matter.
 Object Identity is used to specify that variables with different names must denote different objects.
 Additionally there are two syntactic restrictions.
 Clauses must be connected (i.e. new atoms must always contain a variable that has already occurred) and range-restricted (i.e. no new variables may be introduced in the head of the clause).
+
+To avoid extensive coverage ($e \models c$) and entailment ($\sym{T} \models c$) calculations, two additional tests are used.
+The subset-test rejects clauses that are supersets of a clause that covers the same or all examples and has been accepted earlier.
+Because clauses can be formulated in multiple ways, a representative-test is used to remove clauses that are not in canonical form.
+
+% In the refinement step, clauses are extended to be more general and potentially cover more examples.
+% The refinement operator uses a list of atoms that may be added to a clause.
+% This list is calculated in advance, given a maximal amount of variables.
 
 \subsection{Optimization}
 The first step in finding weighted soft constraints is to identify soft constraints by using the constraint learning system with a (low) threshold.
@@ -281,7 +340,7 @@ Existing software can be used to learn a linear scoring function $\sum_i w_i \cd
 For an unseen example, the feature vector is computed by calculating what clauses cover the new example.
 The scoring function can then be used to calculate a score for that example.
 
-\begin{example}
+\begin{example} "Rewrite"
   Consider examples~$e_1, e_2, e_3$, rankings $e_1 > e_2, e_2 > e_3$ and clauses $c_1, c_2, c_3$.
   If the clauses cover examples according to table~\ref{tbl:cover_examples}, then, for example, the function $(1 \cdot c_1) + (0\cdot c_2) + (-2\cdot c_3)$ perfectly models the given rankings.
   A new example that is covered by~$c_1$ and~$c_2$, would be assigned a score of $1$, according to this function.
@@ -301,7 +360,7 @@ The scoring function can then be used to calculate a score for that example.
   \end{table}
 \end{example}
 
-The \svm{} software was chosen to find the scoring function since it uses a linear model and offers an efficient implementation.
+\svm{} \cite{joachims2006training} was chosen to find the scoring function since it uses a linear model and offers an efficient implementation.
 The weights that it assigns to the features can be used directly as weights for the optimization criteria.
 The input format that is used by \svm{} is also supported by many other learn-to-rank implementations.
 Therefore, other linear ranking systems such as Coordinate Ascent \cite{metzler2007linear} could also be used.
@@ -482,10 +541,7 @@ The figure also shows that providing more rankings improves the robustness of th
   \label{fig:ruis}
 \end{figure}
 
-\begin{question}[Threshold]
-  What is the effect of the soft constraint threshold on the accuracy?
-\end{question}
-  \begin{table}
+  \begin{table}[!htp]
     \caption{Scores for different thresholds ($t$)}
     \begin{tabularx}{\linewidth}{XXXX}
       $t = 1$ & $t = 2$ & $t = 3$ & $t = 4$ \\
@@ -499,6 +555,10 @@ The figure also shows that providing more rankings improves the robustness of th
     \label{tbl:limiet}
   \end{table}
 
+\begin{question}[Threshold]
+  What is the effect of the soft constraint threshold on the accuracy?
+\end{question}
+
 Table~\ref{tbl:limiet} demonstrates that increasing the threshold used for finding soft constraints does not improve the score.
 This experiment used 40\% of the examples as training set and 40\% of the available rankings.
 However, if the size of the problem and examples is increased, a higher threshold will likely be appropriate.
@@ -509,7 +569,7 @@ However, if the size of the problem and examples is increased, a higher threshol
 
 \section{Conclusion}
 The research in this thesis has focused on automatically acquiring constraints and optimization criteria from examples and rankings.
-Implementation for both clause learning and clausal optimization have been provided that accomplish these tasks using first order logic clauses.
+Implementation for both clause learning and clausal optimization have been provided that accomplish these tasks using first-order logic clauses.
 
 The constraint learning implementation has been able to learn the relevant hard and soft constraints in all experiments.
 For each problem, only a small number of examples was given to learn from.
@@ -542,7 +602,7 @@ All the experiments were conducted with problems of limited size and the computa
 
 \section*{Acknowledgments}
 The author thanks his promoters Dr. Luc De Raedt en Dr. ir. Anton Dries.
-Furthermore, he expresses his gratitude for the help provided by Bart Bogaerts, Dr. Jesse Davis, Dr. Marc Denecker and Vladimir Dzyuba.
+Samuel Kolb is supported by the Research Foundation - Flanders (FWO).
 
 \newpage
 
