@@ -48,19 +48,10 @@
 \maketitle
 
 \begin{abstract}
-% This paper presents a system that is able to automatically learn both constraints from examples and optimization criteria from rankings.
-% Both hard and soft constraints can be learned and constraints are represented as first-order logical clauses.
-% Choosing such clauses as representations enables the use of ILP techniques such as clausal discovery.
-% In this research, optimization criteria are represented as weighted clauses.
-% For all examples, the clause learning system could find the essential constraints efficiently.
-% The learning system for optimization criteria is shown to achieve accurate results and can learn criteria that identify the correct optimal solution even for few examples and noisy rankings.
-% Finally, a procedure is outlined that allows weighted first-order logic clauses to be used for optimization in practice.
-
 While there exist several approaches in the constraint programming community to learn a constraint theory, few of them have considered the learning of constraint optimization problems.
 To alleviate this situation, we introduce an initial approach to learning first-order weighted MAX-SAT theories. 
 It employs inductive logic programming techniques to learn a set of first-order clauses and then uses preference learning techniques to learn the weights of the clauses.
 In order to learn these weighted clauses, the clausal optimization system uses examples of possible worlds and a set of preferences that state what examples are preferred over others.
-% "Change" The examples take the form of rankings that state that one possible world is preferred over another one.
 The technique is also empirically evaluated on a number of examples.
 
 \end{abstract}
@@ -70,35 +61,6 @@ The technique is also empirically evaluated on a number of examples.
 % -------------------------------------------------
 
 \section{Introduction}
-% This paper introduces an approach for learning constraints and optimization criteria.
-% Using constraints and optimization criteria such as the ones proposed in this paper allows problems to be modeled \emph{declaratively}.
-% This means that the representation is decoupled from the process of finding a (optimal) solution for the problem.
-% However, non-experts often experience difficulties when modeling a problem using constraints \cite{Wallace:PrinciplesCP}.
-% The first goal of this research is to automate the step of modeling a problem, in order to, amongst others, make constraint solving more accessible.
-% In this approach a few examples of what a user considers valid solutions are used by a computer system to find constraints.
-% These constraints can then be used by an existing constraint solver.
-
-% Constraint learning attempts to find constraints automatically given examples.
-% By using first-order logical clauses as representation for constraints, techniques from Inductive Logic Programming (ILP) can be used for learning.
-% Hereby, this research follows the same approach as \cite{Lallouet:LearningCP}, exploiting parallels between ILP and constraint learning.
-% In this case, the clausal discovery algorithm \cite{DeRaedt:ClausalDiscovery} is used to find constraints.
-
-% There has been increasing interest in formulating declarative models for constraint satisfaction as well as optimization problems.
-% By identifying soft constraints that are only satisfied by some examples and assigning weights to them based on their importance, an optimal solution can be sought.
-% The use of weighted soft constraints to model user preferences is inspired, amongst others, by the research of \cite{campigotto2011active}.
-% Their work examines attempts to obtain similar results in an interactive context for propositional constraints.
-% In this research, first-order constraints are used and optimization criteria are modeled using a first-order version of weighted MAX-SAT.
-% This paper also outlines how these constraints can be used in an existing solver to obtain an optimal solution in practice.
-
-% Since the underlying goal of this research is to facilitate the generation of a formal representation, the input format aims to be easy to use.
-% It has been a key focus to make reasonable assumptions concerning the knowledge a user can provide.
-% One important difference compared to similar research (including \cite{campigotto2011active}) is that users provide partial rankings over examples instead of absolute scores.
-
-% This paper is based on research that has been conducted during the course of my masters thesis~\cite{kolb2015thesis}.
-% The key contribution presented in this paper is a novel approach for learning weighted first-order clauses from rankings to capture user preferences.
-% In this context an implementation of clausal discovery has been realized that supports soft constraints.
-% Moreover, an approach to obtaining optimal solutions for the weighted first-order clauses is presented.
-
 An important class of declarative models is concerned with (discrete) constrained optimization problems.
 These combine constraint satisfaction problems with an optimization function that specifies which solutions are optimal.
 While these models are powerful and elegant, they are often also hard to obtain.
@@ -108,27 +70,21 @@ This has motivated several researchers to investigate whether such models can be
 Learning constraints has been addressed in constraint programming (e.g. \cite{Beldiceanu:ModelSeeker}, \cite{bessiere2013constraint}) and inductive logic programming (e.g. \cite{DeRaedt:ClausalDiscovery}).
 Recent efforts \cite{Lallouet:LearningCP} have attempted to combine these two fields.
 Furthermore, \cite{campigotto2011active}) have learned propositional MAX-SAT theories from examples together with their target value.
-%"Expand something here yet?" ...%Each example ....
-Also, work in statistical relational learning (SRL) on learning the structure of Markov Logic networks (MLN) or other SRL models is relevant, as MAP inference can be used to query for the most likely state. 
+Also, work in statistical relational learning (SRL) on learning the structure of Markov Logic networks (MLN) or other SRL models~\anton{[reference]} is relevant, as MAP inference can be used to query for the most likely state. 
 
 We use weighted first-order logical theories to represent constraint optimization problems.
-The weights will then capture the optimization function, and (first-order) weighted MAX-SAT can be used to determine the \emph{best} solutions.
-Furthermore, we shall learn such models by combining inductive logic programming (ILP) principles (such as clausal discovery \cite{DeRaedt:ClausalDiscovery}) with preference learning.
-ILP will be used to learn the clausal theories, and preference learning to determine the weights.
-Therefore, users will provide examples of possible worlds and a set of preferences that specify which examples are preferred over other ones.
-% "Unify usage of examples / preferences" Therefore, the examples will take the form of rankings, where each ranking specifies that one particular possible world is preferred over another one.
+The weights capture the optimization function, and (first-order) weighted MAX-SAT can be used to determine the \emph{best} solutions.
+Furthermore, we learn such models by combining inductive logic programming (ILP) principles (such as clausal discovery \cite{DeRaedt:ClausalDiscovery}) with preference learning.
+We use ILP to learn the clausal theories, and preference learning to determine the weights.
+Therefore, users provide examples of possible worlds and a set of preferences that specify which examples are preferred over other ones.
 This setting extends traditional constraint learning and ILP approaches with the ability to learn soft constraint and to integrate constraint satisfaction and optimization.
-It extends the approach of \cite{campigotto2011active} as first-order theories are learned and preferences are used rather than from examples with target values.
-Moreover, it differs the SRL and MLN approaches in that one learns from preferences rather than from examples.
- % and rankings are used rather than possible worlds + the target value of the examples, and differs from the SRL and MLN approaches in that one learns from rankings rather than from examples. 
+It extends the approach of \cite{campigotto2011active} as first-order theories are learned and preferences are used rather than from examples with target values.\anton{can't parse}
+Moreover, it differs from the SRL and MLN approaches in that one learns from preferences rather than from examples.
 
 This paper is organized as follows.
-Section~2 will explain some background knowledge and related work.
-In Section~3 we shall introduce the formalism and the setting and in Section~4 the algorithm and the clausal optimization system to solve this problem.
-In Section~5 we shall report on some experiments, and finally, in Section~6, we conclude.
-% "Rewrite" In Section 2, we shall introduce the formalism and the setting,
-% "Rewrite" in Section 3, the algorithm and system X to solve this problem, in Section 4, 
-% "Rewrite" we shall report on some experiments, and Finally, in Section 5 ,we conclude
+Section~2 explain some background knowledge and related work.
+In Section~3 we introduce the formalism and the setting, in Section~4 the algorithm and the clausal optimization system to solve this problem, and in Section~5 we report on some experiments.
+Finally, Section~6 concludes this paper.
 
 % -------------------------------------------------
 % Background
