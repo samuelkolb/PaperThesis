@@ -91,11 +91,11 @@ Finally, Section~6 concludes this paper.
 % -------------------------------------------------
 
 \section{Background}
-In this section a brief overview of the important concepts and relevant literature will be provided.
+In this section we provide a brief overview of the important concepts and relevant literature.
 
 \paragraph{Clauses}
 In order to reason about clauses, the standard notions of (function free) first-order logic are described.
-An atom $p(t_1, t_2, ..., t_n)$ consists of a predicate symbol~$p$ that is applied to $n$ terms~$t_i$.
+An atom $p(t_1, t_2, ..., t_n)$ consists of a predicate symbol $p$ that is applied to $n$ terms $t_i$.
 Terms are either constants or variables.
 In this paper constants will be written in uppercase ($\mathit{John}$) and variables in lowercase ($\mathit{x}$).
 A literal can be an atom $a$ (positive literal) or a negated atom $\lnot a$ (negative literal).
@@ -115,7 +115,7 @@ Formulas can be rewritten into a special form called the Conjunctive Normal Form
 An extension of this problem is the Maximum Satisfiability Problem (MAX-SAT), which is an optimization problem and attempts to maximize the amount of satisfied clauses.
 By assigning positive integer weights to clauses and maximizing the sum of the weights of satisfied clauses, one obtains the weighted MAX-SAT problem.
 
-Related work \cite{campigotto2011active} has creates a weighted MAX-SAT problem by learning propositional clauses and weights using examples and absolute scores.
+In related work \cite{campigotto2011active} a weighted MAX-SAT problem is created by learning propositional clauses and weights using examples and absolute scores.
 Inspired by their results, our research tries to learn first-order logic clauses and weights using examples and rankings.
 The resulting optimization problem can be seen as an extension of weighted MAX-SAT in which the clauses are in first-order logic.
 
@@ -128,21 +128,16 @@ The problem of having little examples can be alleviated by interactively generat
 Both the systems Conacq2 \cite{bessiere2007query} en QuAcq \cite{bessiere2013constraint} generate (partial) examples and query the user about their validity.
 
 ModelSeeker \cite{Beldiceanu:ModelSeeker} attempts to structure the problem variables in different ways.
-The system then uses a large catalog of global constraints to to find the ones that hold within this structure. 
+The system then uses a large catalog of global constraints to find the ones that hold within this structure. 
 This approach allows for constraint learning from a few examples.
 
-As mentioned earlier, the research of \cite{Lallouet:LearningCP} already tried to use ILP techniques to learn constraints.
+As mentioned earlier, the research of \cite{Lallouet:LearningCP} already tried to use ILP techniques to learn constraints.\anton{"tried to" sounds a bit negative}
 In their approach, the search space of constraints is explored in a bidirectional manner, primarily using negative examples.
 
 \paragraph{Clausal Discovery}
 The clausal discovery algorithm \cite{DeRaedt:ClausalDiscovery} attempts to learn first-order logic clauses from positive examples.
 Using a refinement operator, the search space is traversed by incrementally generalizing clauses until they cover all examples, starting from the empty clause~($\square$).
 The result set consists of the most specific clauses covering all examples.
-
-% \paragraph{Logic Solver} " v ------ v   Dissolve"
-% The logic system IDP \cite{de2013prototype,wittocx2008idp} is used to calculate whether examples satisfy clauses and is used as a theorem prover.
-% It supports an extension of first-order logic ($FO(\cdot)$) and can also be used to generate new solutions.
-% Background knowledge is given as an IDP theory.
 
 % -------------------------------------------------
 % Problem Statement
