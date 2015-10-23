@@ -307,7 +307,7 @@ For an unseen example, the feature vector is computed by calculating what clause
 The scoring function can then be used to calculate a score for that example.
 
 \begin{example} "Rewrite"
-  Consider examples~$e_1, e_2, e_3$, rankings $e_1 > e_2, e_2 > e_3$ and clauses $c_1, c_2, c_3$.
+  Consider examples~$e_1, e_2, e_3$, rankings $e_1 \succ e_2, e_2 \succ e_3$ and clauses $c_1, c_2, c_3$.
   If the clauses cover examples according to table~\ref{tbl:cover_examples}, then, for example, the function $(1 \cdot c_1) + (0\cdot c_2) + (-2\cdot c_3)$ perfectly models the given rankings.
   A new example that is covered by~$c_1$ and~$c_2$, would be assigned a score of $1$, according to this function.
   This score has no value in the absolute sense, it can only be used to compare it to other examples ranked by the same function.
