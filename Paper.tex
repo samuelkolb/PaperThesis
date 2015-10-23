@@ -372,43 +372,42 @@ Negative examples can be used to detect under-fitting, indicating that the param
 
 \begin{table}
   \caption{Execution times overview}
-  \begin{tabularx}{\linewidth}{rl|ll}
+  \begin{tabularx}{\linewidth}{r|X}
 
-\textbf{Omitted}  & \textbf{Problem}    & \textbf{Average time (s)} \\ % & \textbf{Time (baseline)}  
+\textbf{Problem}    & \textbf{Average time (s)} \\ % & \textbf{Time (baseline)}  
 \toprule
-Nothing           & Map coloring        & 1.581   ($\pm$ 0.117)     \\ % & 1.000                     
-   (baseline)     & Sudoku              & 4.787   ($\pm$ 0.062)     \\ % & 1.000                     
-                  & Elevator            & 3.182   ($\pm$ 0.073)     \\ % & 1.000                     
-                  & Co-housing          & 25.903  ($\pm$ 0.446)     \\ % & 1.000                     
-\midrule
-Range \sam{Remove}             & Map coloring        & 4.629   ($\pm$ 0.199)     \\ % & 2.928                     
-restriction       & Sudoku              & 16.118  ($\pm$ 0.154)     \\ % & 3.367                     
-                  & Elevator            & 40.453  ($\pm$ 0.319)     \\ % & 12.713                    
-                  & Co-housing          & 207.768 ($\pm$ 0.330)     \\ % & 8.021                     
-\midrule
-Connected         & Map coloring        & 1.589   ($\pm$ 0.110)     \\ % & 1.005                     
-    clauses       & Sudoku              & 7.068   ($\pm$ 0.150)     \\ % & 1.476                     
-                  & Elevator            & 6.157   ($\pm$ 0.114)     \\ % & 1.935                     
-                  & Co-housing          & 103.633 ($\pm$ 0.131)     \\ % & 4.001                     
+Map Coloring        & 1.581   ($\pm$ 0.117)     \\ % & 1.000                     
+Sudoku              & 4.787   ($\pm$ 0.062)     \\ % & 1.000                     
+Elevator            & 3.182   ($\pm$ 0.073)     \\ % & 1.000                     
+Co-housing          & 25.903  ($\pm$ 0.446)     \\ % & 1.000                     
+% \midrule
+% Range \sam{Remove}             & Map coloring        & 4.629   ($\pm$ 0.199)     \\ % & 2.928                     
+% restriction       & Sudoku              & 16.118  ($\pm$ 0.154)     \\ % & 3.367                     
+%                   & Elevator            & 40.453  ($\pm$ 0.319)     \\ % & 12.713                    
+%                   & Co-housing          & 207.768 ($\pm$ 0.330)     \\ % & 8.021                     
+% \midrule
+% Connected         & Map coloring        & 1.589   ($\pm$ 0.110)     \\ % & 1.005                     
+%     clauses       & Sudoku              & 7.068   ($\pm$ 0.150)     \\ % & 1.476                     
+%                   & Elevator            & 6.157   ($\pm$ 0.114)     \\ % & 1.935                     
+%                   & Co-housing          & 103.633 ($\pm$ 0.131)     \\ % & 4.001                     
   \end{tabularx}
   \label{tbl:uitvoering}
 \end{table}
 
-\begin{question}[Efficiency] \sam{review}
+\begin{question}[Efficiency]
   How fast is the clause learning system and what is the effect of various design decisions and input on the execution time?
 \end{question}
 
-Table~\ref{tbl:uitvoering} shows the execution times for several experiments.
-It shows that smaller problems can be solved efficiently and shows that removing the syntactical restrictions exponentially increase the search space.
+Table~\ref{tbl:uitvoering} shows the execution times for the different problems.
+It shows that smaller problems can be solved efficiently.
 
-All efficiency measures (i.e. symmetric predicates, subset test and representative test) have been able to improve the execution time, sometimes by more than 50\%.
-The overhead they introduce is more than compensated by the efficiency gains they cause.
+For a discussion of the experiments evaluating the influence design decisions and input we refer to \cite{kolb2015thesis} and only state the most important conclusions.
+Removing syntactical restrictions is shown to exponentially increase the execution time.
+Moreover, the other efficiency measures (e.g. symmetric predicates) are shown to be effective, individually achieving speedups of up to 50\%.
 
-Further experiments show that increasing the number of variables or literals per clause impacts the efficiency.
-Especially the combination of more variables \emph{and} literals can steeply increase the execution time.
-Therefore it would be useful to adapt these parameters dynamically.
-
-Adding additional examples only increases the execution time by a constant factor.
+Increasing the number of variables or literals per clause negatively impacts the efficiency.
+Especially allowing both more variables \emph{and} more literals can steeply increase the execution time.
+Adding additional examples, however, only increases the execution time by a constant factor.
 Since adding more examples can help improve the accuracy, this trade-off is often worthwhile.
 
 \begin{question}[Compared to humans]
@@ -439,6 +438,8 @@ Additionally, the learning system can function in an automatic setting.
 These experiments show that learned constraints can be used to solve problems efficiently and even faster than hand programmed constraints for the examined cases.
 
 \subsection{Optimization} \sam{Preferences, not rankings}
+\sam{Score, not accuracy}
+\sam{Change figure}
 The efficiency of the learning system for optimization criteria depends mainly on the efficiency of learning soft constraints.
 Therefore, the experiments in this section are focused on the accuracy of the optimization criteria and the influence of different factors.
 
