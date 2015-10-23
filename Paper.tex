@@ -139,7 +139,7 @@ In this section a brief overview of the important concepts and relevant literatu
 
 \paragraph{Clauses}
 In order to reason about clauses, the standard notions of (function free) first-order logic are described.
-An atom $p(t_1, t_2, ..., t_n)$ consists of a predicate symbol $p$ that is applied to $n$ terms $t_i$.
+An atom $p(t_1, t_2, ..., t_n)$ consists of a predicate symbol~$p$ that is applied to $n$ terms~$t_i$.
 Terms are either constants or variables.
 In this paper constants will be written in uppercase ($\mathit{John}$) and variables in lowercase ($\mathit{x}$).
 A literal can be an atom $a$ (positive literal) or a negated atom $\lnot a$ (negative literal).
@@ -164,15 +164,15 @@ Inspired by their results, our research tries to learn first-order logic clauses
 The resulting optimization problem can be seen as an extension of weighted MAX-SAT in which the clauses are in first-order logic.
 
 \paragraph{Learning constraints}
-Constraint learning is a hard problem.
+Constraint learning attempts to automatically identify constraints in one or multiple examples.
 The search space of constraints is typically very large and, unlike in typical machine learning problems, there are usually only few examples to learn from.
 
-Different systems attempt to learn constraints using different methods.
+There are different approaches to accomplishing this task.
 The problem of having little examples can be alleviated by interactively generating data.
 Both the systems Conacq2 \cite{bessiere2007query} en QuAcq \cite{bessiere2013constraint} generate (partial) examples and query the user about their validity.
 
 ModelSeeker \cite{Beldiceanu:ModelSeeker} attempts to structure the problem variables in different ways.
-The system then tests for different global constraints whether they hold within this structure.
+The system then uses a large catalog of global constraints to to find the ones that hold within this structure. 
 This approach allows for constraint learning from a few examples.
 
 As mentioned earlier, the research of \cite{Lallouet:LearningCP} already tried to use ILP techniques to learn constraints.
@@ -224,24 +224,36 @@ A preference $e_1 \succ e_2$ indicates that out of examples $e_1$ and $e_2$ the 
 The soft constraints consist of clauses \sym{C} that are satisfied by some but not all of the examples.
 They can be identified using a system that implements the constraint learning task.
 The weighted clauses \sym{W} are tuples $\mathbb{R} \times \sym{C}$ that can be used to calculate a score for any example $e$:
-\begin{eqnarray*}
-  score(e) = \sum\limits_{(\mathit{w}, \mathit{c}) \in \sym{W}} \mathit{w} \cdot \mathbf{1}_{e \models c}
-\end{eqnarray*}
+\begin{eqnarray}
+  \label{eqn:score}
+  score(e, \sym{W}) = \sum\limits_{(\mathit{w}, \mathit{c}) \in \sym{W}} \mathit{w} \cdot \mathbf{1}_{e \models c}
+\end{eqnarray}
 
-\begin{example}[Moving] "Rewrite"
+\begin{example}[Moving]
   \label{ex:moving}
-  Consider the scenario moving to a new city.
-  Predicates $\mathit{live\_in}, \mathit{work\_in}$ and $\mathit{school\_in}$ indicate the choice of housing, job and school.
-  There might be different areas in the city which 
+  Consider the scenario of moving to a new city and choosing areas for housing, work and school.
+  The choices are captured by the predicates $\mathit{live\_in}$, $\mathit{work\_in}$ and $\mathit{school\_in}$.
+  Additionally, the predicates $\mathit{cheap}$ and $\mathit{low\_crime}$ are used to designate cheap and low crime areas, respectively.
 
-  The user has to choose a job, a place to live and a school.
-  There are multiple job offers, houses and schools available across different areas of the city.
-  User provided examples include a choice of where to work, where to live and what school is chosen.
-  By comparing and ranking some of the examples, the user can express his preferences.
-  Weighted soft-constraints can now be learned and used to identify the best choice.
-  In this case, a possible soft constraint could be that the school and work place are in the same area.
-  The weights that have been learned indicate how desirable or how undesirable a constraint is.
-  Since the constraints are domain independent they can be used for any (unseen) city.
+  Assume the first-order weighted MAX-SAT model \sym{M} describes the optimization problem to be solved:
+  \begin{flalign*}
+    (w_1, c_1) &= (0.50, \mathit{low\_crime}(a) \leftarrow \mathit{live\_in}(a)) \\
+    (w_2, c_2) &= (0.25, \mathit{school\_in}(a) \leftarrow \mathit{work\_in}(a)) \\
+    (w_3, c_3) &= (1.00, \mathit{low\_crime}(a) \leftarrow \mathit{school\_in}(a)) \\
+    (w_4, c_4) &= (-1.00, \mathit{false} \leftarrow \mathit{live\_in}(a) \land \mathit{cheap}(a))
+  \end{flalign*}
+  Let examples $e_1$, $e_2$ and~$e_3$ be interpretations that reason over the same city.
+  Specifically, let all examples share constants (areas) $A_1$, $A_2$ and $A_3$ and ground atoms $\mathit{cheap}(A_1)$, $\mathit{cheap}(A_3)$, $\mathit{low\_crime}(A_1)$ and $\mathit{low\_crime}(A_2)$. Additionally, they specify:
+  \begin{flalign*}
+    &e_1: \mathit{live\_in}(A_1), \mathit{work\_in}(A_2), \mathit{school\_in(A_2)} \\
+    &e_2: \mathit{live\_in}(A_2), \mathit{work\_in}(A_2), \mathit{school\_in(A_3)} \\
+    &e_3: \mathit{live\_in}(A_2), \mathit{work\_in}(A_2), \mathit{school\_in(A_1)}
+  \end{flalign*}
+
+  The score of an example for the model~\sym{M} can be calculated using (\ref{eqn:score}).
+  Example~$e_1$ fulfills clauses $c_1$, $c_2$ and~$c_3$, therefore, $score(e_1, \sym{M}) = 0.5 + 0.25 + 1 + 0 = 1.75$, $score(e_2, \sym{M}) = -1$ and $score(e_3, \sym{M}) = 0$.
+  Therefore, the model \sym{M} would prefer $e_1$ over~$e_2$ ($e_1 \succ e_2$) and $e_2$ over~$e_3$ ($e_2 \succ e_3$).
+  The aim of our research is to learn a model like \sym{M} given such examples and preferences.
 \end{example}
 
 Aside from learning optimization criteria, this paper presents an approach to use these optimization criteria to find an optimal solution in practice.
@@ -305,7 +317,7 @@ Preference look at the relative position of a few examples at a time and are typ
 \subsection{Clausal Discovery}
 The clause learning system is based on the clausal discovery algorithm (alg.~\ref{alg:cd}).
 Note the double use of the $\models$ operator.
-On the one hand, it is used in $e \models c$ to denote that clause~$c$ is true in the example (interpretation)~$e$ ($c$ covers $e$).
+On the one hand, it is used in $e \models c$ to denote that clause~$c$ is true in the example (interpretation)~$e$ and $c$ is said to cover $e$.
 This test is used to compute if a clause covers enough examples.
 On the other hand, in $\sym{T} \models c$ it signifies that \sym{T} entails $c$ (i.e. for every interpretation it holds that if \sym{T} is true, $c$ is also true).
 The algorithm uses this test to remove redundant clauses.
@@ -341,7 +353,7 @@ For an unseen example, the feature vector is computed by calculating what clause
 The scoring function can then be used to calculate a score for that example.
 
 \begin{example} "Rewrite"
-  Consider examples~$e_1, e_2, e_3$, rankings $e_1 > e_2, e_2 > e_3$ and clauses $c_1, c_2, c_3$.
+  Consider examples~$e_1, e_2, e_3$, rankings $e_1 \succ e_2, e_2 \succ e_3$ and clauses $c_1, c_2, c_3$.
   If the clauses cover examples according to table~\ref{tbl:cover_examples}, then, for example, the function $(1 \cdot c_1) + (0\cdot c_2) + (-2\cdot c_3)$ perfectly models the given rankings.
   A new example that is covered by~$c_1$ and~$c_2$, would be assigned a score of $1$, according to this function.
   This score has no value in the absolute sense, it can only be used to compare it to other examples ranked by the same function.
