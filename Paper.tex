@@ -94,9 +94,9 @@ In this section we provide a brief overview of the important concepts and releva
 
 \paragraph{Clauses}
 We use (function free) first-order clauses; which we now introduce.
-An atom $p(t_1, t_2, ..., t_n)$ consists of a predicate symbol~$p$ that is applied to $n$ terms~$t_i$. \sam{Casing}
+An atom $P(t_1, t_2, ..., t_n)$ consists of a predicate symbol~$P$ that is applied to $n$ terms~$t_i$.
 Terms are either constants or variables.
-In this paper constants will be written in uppercase ($\mathit{John}$) and variables in lowercase ($\mathit{x}$).
+In this paper predicates and constants will be written in uppercase ($\mathit{John}$) and variables in lowercase ($\mathit{x}$).
 A literal can be an atom~$a$ (positive literal) or a negated atom~$\lnot a$ (negative literal).
 Clauses are disjunctions of literals $l_1 \lor l_2 \lor ... \lor l_k$ and are assumed to be universally quantified.
 A clause can be expressed using a body and a head $\mathit{head} \leftarrow \mathit{body}$.
@@ -168,22 +168,22 @@ An interpretation~$e_{opt}$ is an optimal solution with respect to~$\sym{W}_{\sy
 \begin{example}[Moving]
   \label{ex:moving}
   Consider the scenario of moving to a new city and choosing areas for housing, work and school.
-  The choices are captured by the predicates $\mathit{live\_in}$, $\mathit{work\_in}$ and $\mathit{school\_in}$.
-  Additionally, the predicates $\mathit{cheap}$ and $\mathit{low\_crime}$ are used to designate cheap and low crime areas, respectively.
+  The choices are captured by the predicates $\mathit{LiveIn}$, $\mathit{WorkIn}$ and $\mathit{SchoolIn}$.
+  Additionally, the predicates $\mathit{Cheap}$ and $\mathit{LowCrime}$ are used to designate cheap and low crime areas, respectively.
 
   Assume the following set of weighted clauses~\sym{M} describes the optimization problem to solve:
   \begin{flalign*}
-    (w_1, c_1) &= (0.50, \mathit{low\_crime}(a) \leftarrow \mathit{live\_in}(a)) \\
-    (w_2, c_2) &= (0.25, \mathit{school\_in}(a) \leftarrow \mathit{work\_in}(a)) \\
-    (w_3, c_3) &= (1.00, \mathit{low\_crime}(a) \leftarrow \mathit{school\_in}(a)) \\
-    (w_4, c_4) &= (-1.00, \mathit{false} \leftarrow \mathit{live\_in}(a) \land \mathit{cheap}(a))
+    (w_1, c_1) &= (0.50, \mathit{LowCrime}(a) \leftarrow \mathit{LiveIn}(a)) \\
+    (w_2, c_2) &= (0.25, \mathit{SchoolIn}(a) \leftarrow \mathit{WorkIn}(a)) \\
+    (w_3, c_3) &= (1.00, \mathit{LowCrime}(a) \leftarrow \mathit{SchoolIn}(a)) \\
+    (w_4, c_4) &= (-1.00, \mathit{false} \leftarrow \mathit{LiveIn}(a) \land \mathit{Cheap}(a))
   \end{flalign*}
   Let examples $e_1$, $e_2$ and~$e_3$ be Herbrand interpretations that reason over the same city, using the same constants (areas) $A_1$, $A_2$ and $A_3$.
-  Consider the set~\sym{S} of shared ground atoms $\{\mathit{cheap}(A_1)$, $\mathit{cheap}(A_3)$, $\mathit{low\_crime}(A_1)$, $\mathit{low\_crime}(A_2)\}$ and define the examples as:
+  Consider the set~\sym{S} of shared ground atoms $\{\mathit{Cheap}(A_1)$, $\mathit{Cheap}(A_3)$, $\mathit{LowCrime}(A_1)$, $\mathit{LowCrime}(A_2)\}$ and define the examples as:
   \begin{flalign*}
-    &e_1 = \{\mathit{live\_in}(A_1), \mathit{work\_in}(A_2), \mathit{school\_in(A_2)}\} \cup \sym{S} \\
-    &e_2 = \{\mathit{live\_in}(A_2), \mathit{work\_in}(A_2), \mathit{school\_in(A_3)}\} \cup \sym{S}\\
-    &e_3 = \{\mathit{live\_in}(A_2), \mathit{work\_in}(A_2), \mathit{school\_in(A_1)}\} \cup \sym{S}.
+    &e_1 = \{\mathit{LiveIn}(A_1), \mathit{WorkIn}(A_2), \mathit{SchoolIn(A_2)}\} \cup \sym{S} \\
+    &e_2 = \{\mathit{LiveIn}(A_2), \mathit{WorkIn}(A_2), \mathit{SchoolIn(A_3)}\} \cup \sym{S}\\
+    &e_3 = \{\mathit{LiveIn}(A_2), \mathit{WorkIn}(A_2), \mathit{SchoolIn(A_1)}\} \cup \sym{S}.
   \end{flalign*}
 
   The score of an example can be calculated using~(\ref{eqn:score}).
@@ -300,15 +300,15 @@ However, the first-order logic solver IDP can solve our optimization task as it 
 The only limitation is that the current version is restricted to integer values and does not support rational numbers.
 Therefore, the weights of the clauses are divided by the smallest absolute weight, multiplied by a constant and rounded to the closest integer.
 
-In order to model the optimization problem in IDP, every clause $c_i$ with variables $v_1, ..., v_n$ is represented by a number $i$. For every clause a predicate $t(i)$ is added to capture the truth value of the clause.
-A function $\mathit{cost}(i)$ specifies the cost of not satisfying the clause, which is equal to the weight of the clause.
+In order to model the optimization problem in IDP, every clause $c_i$ with variables $v_1, ..., v_n$ is represented by a number $i$. For every clause a predicate $T(i)$ is added to capture the truth value of the clause.
+A function $\mathit{Cost}(i)$ specifies the cost of not satisfying the clause, which is equal to the weight of the clause.
 \begin{flalign*}
-  &t(i) \Leftrightarrow \forall v_1, ..., v_n : c_i. \\
-  &cost(i) = w_i.
+  &T(i) \Leftrightarrow \forall v_1, ..., v_n : c_i. \\
+  &Cost(i) = w_i.
 \end{flalign*}
 
-Using $t$ and $\mathit{cost}$, a function $\mathit{actual}(i) = \mathbf{1}_{\lnot t(i)} \cdot \mathit{cost}(i)$ is then defined inductively.
-This function is used in the optimization criterion $\sum_i actual(i)$ which should be minimized. % , which will allow IDP to search for an optimal solution.
+Using $T$ and $\mathit{Tost}$, a function $\mathit{Actual}(i) = \mathbf{1}_{\lnot T(i)} \cdot \mathit{Cost}(i)$ is then defined inductively.
+This function is used in the optimization criterion $\sum_i Actual(i)$ which should be minimized. % , which will allow IDP to search for an optimal solution.
 
 % -------------------------------------------------
 % Evaluation
@@ -328,13 +328,13 @@ We used four problems to evaluate constraint learning:
 \item[Map Coloring] Countries are assigned colors and neighboring countries may not have the same color.
 Two examples, each containing three correctly colored countries, are given.
 \item[Sudoku] A single, solved $4 \times 4$ sudoku is given as an example for this problem.
-\item[Elevator] This problem uses three predicates $\mathit{inside}$, $\mathit{crowded}$ and $\mathit{panic}$, with $\mathit{crowded}$ being a calculated predicate.
+\item[Elevator] This problem uses three predicates $\mathit{Inside}$, $\mathit{Crowded}$ and $\mathit{Panic}$, with $\mathit{Crowded}$ being a calculated predicate.
 It is defined by background knowledge to be true for all elevators with three or more people inside.
 Out of the three examples provided for this problem, two satisfy the target soft constraint:
 \begin{flalign*}
-  &\mathit{panic}(p)~\leftarrow~\mathit{crowded}(e)~\land~\mathit{inside(p, e)}.
+  &\mathit{Panic}(p)~\leftarrow~\mathit{Crowded}(e)~\land~\mathit{Inside(p, e)}.
 \end{flalign*}
-\item[Co-housing] The co-housing problem also uses background knowledge to specify one of its predicates ($\mathit{cheap}$) and to impose some additional constraints.
+\item[Co-housing] The co-housing problem also uses background knowledge to specify one of its predicates ($\mathit{Cheap}$) and to impose some additional constraints.
 Five examples are provided, which all adhere to the following four constraints on the housing choices of two friends:
 \begin{enumerate}
   \item If the two friends do not live in the same area, they work in the same area.
@@ -433,7 +433,7 @@ The efficiency of the learning system for optimization criteria depends mainly o
 Therefore, the experiments in this section are focused on the accuracy of the optimization criteria and the influence of different factors.
 
 Example~\ref{ex:moving} introduced the moving city scenario which is used to evaluate the learning of optimization criteria.
-18 possible configurations are used as available examples~(\sym{E}), differing in their values for $\mathit{live\_in}$, $\mathit{work\_in}$ and $\mathit{school\_in}$.
+18 possible configurations are used as available examples~(\sym{E}), differing in their values for $\mathit{LiveIn}$, $\mathit{WorkIn}$ and $\mathit{SchoolIn}$.
 The four weighted soft constraints are used to represent the underlying model~(\sym{M}) for the users preferences.
 Two approaches are used for evaluation and vary in the way they construct the training ($\sym{E}_{train}$) and test sets ($\sym{E}_{test}$).
 In the first approach, given a parameter~$p_{train}$, the examples are randomly partitioned into disjoint training and test sets ($\sym{E}_{test}$), such that $\abs{\sym{E}_{train}} = p_{train} \cdot \abs{\sym{E}}$.
@@ -489,10 +489,7 @@ The figure also shows that increasing the number of preferences used for learnin
       $t = 1$ & $t = 2$ & $t = 3$ & $t = 4$ \\
       \toprule
      0.823 & 0.740 & 0.788 & 0.735 \\
-     ($\pm$ 0.073)&
-($\pm$ 0.078)&
-($\pm$ 0.074)&
-($\pm$ 0.063)
+     ($\pm$ 0.073) & ($\pm$ 0.078) & ($\pm$ 0.074) & ($\pm$ 0.063)
     \end{tabularx}
     \label{tbl:limiet}
   \end{table}
