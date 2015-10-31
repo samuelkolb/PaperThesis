@@ -59,8 +59,6 @@ These experiments show that the system is capable of learning clauses and weight
 % -------------------------------------------------
 
 \section{Introduction}
-\sam{it might be good to state somewhere early that you are in the "learning from interpretations" setting, but additionally have preferences}
-\sam{Structure}
 An important class of declarative models is concerned with (discrete) constrained optimization problems.
 These combine constraint satisfaction problems with an optimization function that specifies which solutions are optimal.
 While these models are powerful and elegant, they are often also hard to obtain, certainly for non-experts \cite{Wallace:PrinciplesCP}.
@@ -69,16 +67,18 @@ This has motivated several researchers to investigate whether such models can be
 Learning constraints has been addressed in constraint programming (e.g. \cite{Beldiceanu:ModelSeeker,bessiere2013constraint}) and inductive logic programming (e.g. \cite{DeRaedt:ClausalDiscovery}).
 Recent efforts \cite{Lallouet:LearningCP} have attempted to combine these two fields.
 Furthermore, \cite{campigotto2011active} have learned propositional weighted MAX-SAT theories from examples.
-Also, work in statistical relational learning (SRL) on learning the structure of Markov Logic networks (MLN) or other SRL models \cite{kok2005learning} is relevant, as MAP inference can be used to query for the most likely state. 
 
 We use weighted first-order logical theories to represent constraint optimization problems.
 The weights capture the optimization function, and (first-order) weighted MAX-SAT can be used to determine the \emph{best} solutions.
 Furthermore, we learn such models by combining inductive logic programming (ILP) principles (such as clausal discovery \cite{DeRaedt:ClausalDiscovery}) with preference learning.
-We use ILP to learn the clausal theories, and preference learning to determine the weights.
+We use ILP to learn the clausal theories from interpretations, and preference learning to determine the weights.
 Therefore, users provide examples of possible worlds and a set of preferences that specify which examples are preferred over other ones.
 This setting extends traditional constraint learning and ILP approaches with the ability to learn soft constraints and integrates constraint satisfaction and optimization.
 It also extends the approach of \cite{campigotto2011active} as first-order theories are learned and preferences are used rather than examples with target values.
-Moreover, it differs from the SRL and MLN approaches in that one learns from preferences rather than from examples.
+
+Weighted first-order MAX-SAT problems relate to Markov Logic networks (MLN), as MAP inference in MLNs can be used to query for the most likely state.
+Therefore, work in statistical relational learning (SRL) on learning the structure of MLNs or other SRL models \cite{kok2005learning} is also relevant.
+However, our work differs from the SRL and MLN approaches in that one learns from preferences rather than from examples.
 
 This paper is organized as follows.
 Section~2 reviews background and related work.
@@ -114,13 +114,11 @@ Formulas can be rewritten into Conjunctive Normal Form (CNF), which consists of 
 An extension of this problem is the Maximum Satisfiability Problem (MAX-SAT), which is an optimization problem and attempts to maximize the number of satisfied clauses.
 By assigning positive integer weights to clauses and maximizing the sum of the weights of satisfied clauses, one obtains the weighted MAX-SAT problem.
 
-\sam{versus MLN, PSL}
 In related work \cite{campigotto2011active} weighted MAX-SAT problems are induced by learning propositional clauses and weights using examples and absolute scores.
 The representation we use is an extension of weighted MAX-SAT to first-order logic.
 We also learn this model using preferences over sets of examples (possible worlds), rather than assigning target values to examples.
 
 \paragraph{Constraint Learning}
-\sam{Define constraints}
 The goal of constraint learning is to automatically identify constraints in one or multiple examples.
 This task is difficult because the search space of constraints is typically very large and, unlike in typical machine learning problems, there are usually only few examples to learn from.
 
@@ -165,7 +163,7 @@ Weighted clauses~($\sym{W}_{\sym{C}}$) are tuples $\mathbb{R} \times \sym{C}$ th
 \end{eqnarray}
 An interpretation~$e_{opt}$ is an optimal solution with respect to~$\sym{W}_{\sym{C}}$ if $score_{\sym{W}_{\sym{C}}}(e_{opt})$ is maximal.
 
-\begin{example}[Moving]
+\begin{example}[Moving city]
   \label{ex:moving}
   Consider the scenario of moving to a new city and choosing areas for housing, work and school.
   The choices are captured by the predicates $\mathit{LiveIn}$, $\mathit{WorkIn}$ and $\mathit{SchoolIn}$.
@@ -356,7 +354,7 @@ These kind of constraints may help a constraint solver to work more efficiently.
 The learning process is parameterized by the maximal number of variables and literals allowed per clause.
 If these limits are too large, constraints are found that over-fit the training data.
 These constraints are too specific and will exclude valid solutions that are not in the training set.
-On the other hand, if the chosen limits are too small, the necessary constraints will not be found.
+However, if the chosen limits are too small, the necessary constraints will not be found.
 
 Over-fitting can be addressed by removing constraints that exclude valid solutions (manually or automatically) as well as providing more (or larger) training examples.
 Negative examples can be used to detect under-fitting, indicating that the parameter values are too small.
@@ -533,9 +531,10 @@ All the experiments were conducted with problems of limited size and the computa
 The author thanks his promoters Luc De Raedt and Anton Dries.
 Samuel Kolb is supported by the Research Foundation - Flanders (FWO).
 
+\newpage
 %
 % ---- Bibliography ----
 %
-\bibliographystyle{aaai}
 \bibliography{Bibliography}
+\bibliographystyle{aaai}
 \end{document}
