@@ -1,0 +1,34 @@
+----------------------- REVIEW 1 ---------------------
+PAPER: 2
+TITLE: Learning Constraints and Optimization Criteria
+AUTHORS: Samuel Kolb
+
+OVERALL EVALUATION: 0 (borderline paper)
+REVIEWER'S CONFIDENCE: 4 (high)
+
+----------- REVIEW -----------
+This paper addresses the problem of learning weighted clauses using partially ordered examples. The proposed approach first learns a collection of clauses using inductive logic programming and then uses rank-SVM to learn weights over the learned clauses using the preferences.
+
+The paper is definitely interesting and well written. The proposed approach is clearly plausible. 
+
+For the sake of completeness, it would be good to give a motivation for why the setting is interesting in the introduction. Specifically, in connection to the work of Campigotto et al and Domingos and Kok. (The current writeup says that this work is different from those papers because it learn weighted theories using preferences. But why is that a good thing to do? Are there real tasks where the examples are available along with pairwise preferences over them?) 
+
+I also worry that the scale of the evaluation is rather small. It may be interesting to see the various questions are answered on real data.
+
+
+----------------------- REVIEW 2 ---------------------
+PAPER: 2
+TITLE: Learning Constraints and Optimization Criteria
+AUTHORS: Samuel Kolb
+
+OVERALL EVALUATION: 2 (accept)
+REVIEWER'S CONFIDENCE: 3 (medium)
+
+----------- REVIEW -----------
+This paper explores the task of learning constraint problems from data and "user preferences". Experiments on a few synthetic benchmarks show that the learned constraints are useful in terms of accuracy and efficiency. 
+
+I think this is a good paper and will be interesting for the workshop attendees. The paper is written well for the most part, and the proposed approach is quite novel AFAIK (although quite simplistic). I was particularly impressed by the evaluation, the authors explore the problem from a few different perspectives.
+
+This paper does assume a lot of background that the reader, including me, may not have. Note that I am very familiar with constraint programming and probabilistic programming, including logic based formulations such as MLNs and ProbLog. So I feel me feeling a little lost is a shortcoming of the paper.
+
+It would help if the authors start with an example of the model they want to support, to convince us that learning is needed. Further, it was not even clear initially whether "constraint learning" meant discovering constraints from data, or whether it is similar to weight learning for soft constraints.
