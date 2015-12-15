@@ -1,6 +1,12 @@
-\def\year{2015}
+\def\year{2016}
 \documentclass[letterpaper]{article}
 \usepackage{aaai}
+\usepackage{times}
+\usepackage{helvet}
+\usepackage{courier}
+\setlength{\pdfpagewidth}{8.5in}
+\setlength{\pdfpageheight}{11in}
+
 \usepackage{graphicx}
 \usepackage{algorithm}
 \usepackage[noend]{algpseudocode}
@@ -13,12 +19,11 @@
 \usepackage{csquotes}
 \usepackage{tabularx,booktabs,multirow}
 \usepackage{longtable}
-\usepackage{framed}
 
 \pdfinfo{
 /Title (Learning Constraints and Optimization Criteria)
 /Author (Samuel Kolb)}
-\setcounter{secnumdepth}{0}  
+\setcounter{secnumdepth}{1}  
 
 \graphicspath{{Graphics/}{}}
 
@@ -34,14 +39,14 @@
 
 \setlength{\tabcolsep}{6pt}
 
-\begin{document}
-
 \title{Learning Constraints and Optimization Criteria}
 \author{
   Samuel Kolb\\
   KU Leuven, Leuven, Belgium\\
   samuel.kolb@cs.kuleuven.be
 }
+
+\begin{document}
 
 \maketitle
 
@@ -465,7 +470,7 @@ The accuracy of the learned model is then calculated as the fraction of correctl
 
 \begin{figure}
   \centering
-    \includegraphics[width=1\linewidth]{accuracy}
+    \includegraphics[width=1\linewidth]{accuracy.pdf}
   \caption{Influence of input size ($p_{train}$ and $p_{pref}$)}
   \label{fig:fractie}
 \end{figure}
@@ -490,7 +495,7 @@ The figure also shows that increasing the number of preferences used for learnin
 
 \begin{figure}
   \centering
-    \includegraphics[width=1\linewidth]{errors}
+    \includegraphics[width=1\linewidth]{errors.pdf}
   \caption{Influence of preference errors ($p_{error}$)}
   \label{fig:ruis}
 \end{figure}
@@ -548,8 +553,6 @@ All the experiments were conducted with problems of limited size and the computa
 The author thanks his promoters Luc De Raedt and Anton Dries.
 Furthermore, he is is thankful for the help provided by Bart Bogaerts, Jesse Davis, Marc Denecker, Vladimir Dzyuba, Angelika Kimmig and Jan Tobias M\"uhlberg.
 Samuel Kolb is supported by the Research Foundation - Flanders (FWO).
-
-\newpage
 
 % -------------------------------------------------
 % Bibliography
