@@ -1,6 +1,12 @@
-\def\year{2015}
+\def\year{2016}
 \documentclass[letterpaper]{article}
 \usepackage{aaai}
+\usepackage{times}
+\usepackage{helvet}
+\usepackage{courier}
+\setlength{\pdfpagewidth}{8.5in}
+\setlength{\pdfpageheight}{11in}
+
 \usepackage{graphicx}
 \usepackage{algorithm}
 \usepackage[noend]{algpseudocode}
@@ -13,12 +19,11 @@
 \usepackage{csquotes}
 \usepackage{tabularx,booktabs,multirow}
 \usepackage{longtable}
-\usepackage{framed}
 
 \pdfinfo{
 /Title (Learning Constraints and Optimization Criteria)
 /Author (Samuel Kolb)}
-\setcounter{secnumdepth}{0}  
+\setcounter{secnumdepth}{1}  
 
 \graphicspath{{Graphics/}{}}
 
@@ -34,14 +39,14 @@
 
 \setlength{\tabcolsep}{6pt}
 
-\begin{document}
-
 \title{Learning Constraints and Optimization Criteria}
 \author{
   Samuel Kolb\\
   KU Leuven, Leuven, Belgium\\
   samuel.kolb@cs.kuleuven.be
 }
+
+\begin{document}
 
 \maketitle
 
@@ -57,27 +62,43 @@ These experiments show that the system is capable of learning clauses and weight
 % -------------------------------------------------
 % Introduction
 % -------------------------------------------------
+
+% \begin{itemize}
+%   \item \sam{Why interesting, connection to Campignotto, Domingos, Kok, Why preferences useful?}
+%   \item \sam{Real tasks with preferences? Small scale evaluation}
+%   \item \sam{Lot of background knowledge assumed (vs. constraint programming, probabilistic programming, demo model and need for learning!)}
+% \end{itemize}
+
 \section{Introduction}
 An important class of declarative models is concerned with (discrete) constrained optimization problems.
 These combine constraint satisfaction problems with an optimization function that specifies which solutions are optimal.
 While these models are powerful and elegant, they are often also hard to obtain, certainly for non-experts \cite{Wallace:PrinciplesCP}.
 This has motivated several researchers to investigate whether such models can be learned. 
 
-Learning constraints has been addressed in constraint programming (e.g. \cite{Beldiceanu:ModelSeeker,bessiere2013constraint}) and inductive logic programming (e.g. \cite{DeRaedt:ClausalDiscovery}).
+Constraint learning is the task of discovering constraints from data.
+This task has been addressed in constraint programming (e.g. \cite{Beldiceanu:ModelSeeker,bessiere2013constraint}) and inductive logic programming (e.g. \cite{DeRaedt:ClausalDiscovery}).
 Recent efforts \cite{Lallouet:LearningCP} have attempted to combine these two fields.
 Furthermore, \cite{campigotto2011active} have learned propositional weighted MAX-SAT theories from examples.
 
-We use weighted first-order logical theories to represent constraint optimization problems.
+We use weighted first-order logical theories to represent constrained optimization problems (as illustrated in example~1).
 The weights capture the optimization function, and (first-order) weighted MAX-SAT can be used to determine the \emph{best} solutions.
 Furthermore, we learn such models by combining inductive logic programming (ILP) principles (such as clausal discovery \cite{DeRaedt:ClausalDiscovery}) with preference learning.
 We use ILP to learn the clausal theories from interpretations, and preference learning to determine the weights.
 Therefore, users provide examples of possible worlds and a set of preferences that specify which examples are preferred over other ones.
 This setting extends traditional constraint learning and ILP approaches with the ability to learn soft constraints and integrates constraint satisfaction and optimization.
-It also extends the approach of \cite{campigotto2011active} as first-order theories are learned and preferences are used rather than examples with target values.
+It also extends the propositional approach of \cite{campigotto2011active} as first-order theories are learned and preferences are used rather than examples with target values.
+Preferences are useful in situations where the score of an example is hard to quantify (e.g. comparing songs or designs) and it is often easier for humans to provide preferences over few examples at a time than absolute scores.
 
 Weighted first-order MAX-SAT problems relate to Markov Logic networks (MLN), as MAP inference in MLNs can be used to query for the most likely state.
 Therefore, work in statistical relational learning (SRL) on learning the structure of MLNs or other SRL models \cite{kok2005learning} is also relevant.
 However, our work differs from the SRL and MLN approaches in that one learns from preferences rather than from examples.
+
+% We use preferences for learning as it is often easier for humans to provide preferences over few examples at a time than absolute scores.
+% This makes them useful in interactive settings and in situations where an examples absolute score is hard to quantify.
+
+% One of the main advantages of using preferences for learning is that preferences are often easier to provide for humans and only consider few examples at a time.
+% Consequently, they are useful in interactive settings and in situations where an examples absolute score is hard to quantify.
+
 
 This paper is organized as follows.
 Section~2 reviews background and related work.
@@ -245,7 +266,7 @@ Both $e \models c$ and $\sym{T} \not\models c$ are computed by the IDP knowledge
 The algorithm can find both soft constraints ($t < \abs{\sym{E}}$) or hard constraints ($t = \abs{\sym{E}}$).
 
 Starting with the empty clause ($\square$), clauses are refined until they cover enough examples.
-If a clause covers enough examples it is added to the result set, provided it is not entailed by other clauses already in the result set.
+If a clause covers enough examples it is added to the result set, unless it is entailed by clauses already in the result set.
 In the refinement step, a clause $c = \{l_1, l_2, ..., l_k\}$ is extended (refined) by adding a new literal $l$.
 The new clause, $c' = c \cup \{l\}$ is more general than $c$ ($c' \models c$) and potentially covers more examples.
 By adding just one literal the refinement operator $\rho$ generates the set of clauses that are minimally more general.
@@ -289,7 +310,7 @@ The scoring function~$f$ agrees with a preference $e_1 \succ e_2$ if $f(\mathbf{
 
 \svm{} \cite{joachims2006training} was chosen to find the scoring function since it uses a linear model and offers a robust and efficient implementation.
 The weights that it assigns to the features can be used directly as weights for the clauses.
-While the current implementation uses \svm{}, other linear ranking systems such as Coordinate Ascent \cite{metzler2007linear} could also be used.
+Other linear ranking systems such as Coordinate Ascent \cite{metzler2007linear} could also be used.
 
 \subsection{Optimal Solution}
 Typical MAX-SAT solvers use propositional clauses and only allow for positive weights.
@@ -353,10 +374,9 @@ These kind of constraints may help a constraint solver to work more efficiently.
 The learning process is parameterized by the maximal number of variables and literals allowed per clause.
 If these limits are too large, constraints are found that over-fit the training data.
 These constraints are too specific and will exclude valid solutions that are not in the training set.
-However, if the chosen limits are too small, the necessary constraints will not be found.
-
-Over-fitting can be addressed by removing constraints that exclude valid solutions (manually or automatically) as well as providing more (or larger) training examples.
-Negative examples can be used to detect under-fitting, indicating that the parameter values are too small.
+Over-fitting can be addressed by removing invalid constraints (manually or automatically) and providing more (or larger) training examples.
+On the other hand, if the chosen limits are too small, the necessary constraints will not be found.
+Under-fitting can be detected using negative examples.
 
 \begin{table}
   \caption{Execution times for learning constraints}
@@ -394,9 +414,9 @@ Removing syntactical restrictions is shown to exponentially increase the executi
 Moreover, the other efficiency measures (e.g. symmetric predicates) are shown to be effective, individually achieving speedups of up to 50\%.
 
 Increasing the number of variables or literals per clause negatively impacts the efficiency.
-Especially allowing both more variables \emph{and} more literals can steeply increase the execution time.
-Including additional examples, however, only increases the execution time by a constant factor.
-Since adding more examples can help improve the accuracy, this trade-off is often worthwhile.
+Especially increasing both parameters can steeply increase the execution time.
+The current implementation may still need significant time to solve large problems that include many predicates.
+However, including additional or larger examples usually only increases the execution time by a constant factor.
 
 \begin{question}[Compared to humans]
   How do learned constraints compare to human programmed constraints?
@@ -450,7 +470,7 @@ The accuracy of the learned model is then calculated as the fraction of correctl
 
 \begin{figure}
   \centering
-    \includegraphics[width=1\linewidth]{accuracy}
+    \includegraphics[width=1\linewidth]{accuracy.pdf}
   \caption{Influence of input size ($p_{train}$ and $p_{pref}$)}
   \label{fig:fractie}
 \end{figure}
@@ -475,7 +495,7 @@ The figure also shows that increasing the number of preferences used for learnin
 
 \begin{figure}
   \centering
-    \includegraphics[width=1\linewidth]{errors}
+    \includegraphics[width=1\linewidth]{errors.pdf}
   \caption{Influence of preference errors ($p_{error}$)}
   \label{fig:ruis}
 \end{figure}
@@ -504,7 +524,7 @@ However, if the number of examples is increased, a higher threshold will likely 
 
 \section{Conclusion}
 We presented an approach to automatically acquire constraints and optimization criteria from examples and preferences.
-Implementations for both clause discovery and clausal optimization have been provided that accomplish these tasks using first-order logic clauses.
+Implementations for both clause discovery and clausal optimization were provided that accomplish these tasks using first-order logic clauses.
 
 The constraint learning implementation has been able to learn the relevant hard and soft constraints in all experiments.
 For each problem, the relevant constraints could be learned from only a few examples.
@@ -520,6 +540,9 @@ This also forms an important step to enable the learning of optimization criteri
 
 \paragraph{Future work}
 There are several opportunities for future work.
+In the current approach weight learning is performed using preferences and a learn-to-rank SVM.
+It would, however, be easy to use another type of input (e.g. absolute scores) and a corresponding SVM.
+
 It would be interesting to adapt the number of variables and literals per clause dynamically, as they have a strong influence on the efficiency and accuracy of the clause learning system.
 Additionally, interactivity could be added to the learning system by actively generating examples or preferences and querying the user about their validity.
 
@@ -528,12 +551,13 @@ All the experiments were conducted with problems of limited size and the computa
 
 \section*{Acknowledgments}
 The author thanks his promoters Luc De Raedt and Anton Dries.
+Furthermore, he is is thankful for the help provided by Bart Bogaerts, Jesse Davis, Marc Denecker, Vladimir Dzyuba, Angelika Kimmig and Jan Tobias M\"uhlberg.
 Samuel Kolb is supported by the Research Foundation - Flanders (FWO).
 
-\newpage
-%
-% ---- Bibliography ----
-%
+% -------------------------------------------------
+% Bibliography
+% -------------------------------------------------
+
 \bibliography{Bibliography}
 \bibliographystyle{aaai}
 \end{document}

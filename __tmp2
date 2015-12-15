@@ -524,7 +524,7 @@ However, if the number of examples is increased, a higher threshold will likely 
 
 \section{Conclusion}
 We presented an approach to automatically acquire constraints and optimization criteria from examples and preferences.
-Implementations for both clause discovery and clausal optimization have been provided that accomplish these tasks using first-order logic clauses.
+Implementations for both clause discovery and clausal optimization were provided that accomplish these tasks using first-order logic clauses.
 
 The constraint learning implementation has been able to learn the relevant hard and soft constraints in all experiments.
 For each problem, the relevant constraints could be learned from only a few examples.
@@ -558,6 +558,116 @@ Samuel Kolb is supported by the Research Foundation - Flanders (FWO).
 % Bibliography
 % -------------------------------------------------
 
-\bibliography{Bibliography}
+\begin{thebibliography}{}
+
+\bibitem[\protect\citeauthoryear{Beldiceanu and
+  Simonis}{2012}]{Beldiceanu:ModelSeeker}
+Beldiceanu, N., and Simonis, H.
+\newblock 2012.
+\newblock A model seeker: Extracting global constraint models from positive
+  examples.
+\newblock In {\em Principles and Practice of Constraint Programming},
+  141--157.
+\newblock Springer.
+
+\bibitem[\protect\citeauthoryear{Bessiere \bgroup et al\mbox.\egroup
+  }{2007}]{bessiere2007query}
+Bessiere, C.; Coletta, R.; O'Sullivan, B.; Paulin, M.; et~al.
+\newblock 2007.
+\newblock Query-driven constraint acquisition.
+\newblock In {\em Proceedings of the Twentieth International Joint Conference
+  on Artificial Intelligence},  50--55.
+
+\bibitem[\protect\citeauthoryear{Bessiere \bgroup et al\mbox.\egroup
+  }{2013}]{bessiere2013constraint}
+Bessiere, C.; Coletta, R.; Hebrard, E.; Katsirelos, G.; Lazaar, N.; Narodytska,
+  N.; Quimper, C.-G.; and Walsh, T.
+\newblock 2013.
+\newblock Constraint acquisition via partial queries.
+\newblock In {\em Proceedings of the Twenty-Third International Joint
+  Conference on Artificial Intelligence},  475--481.
+\newblock AAAI Press.
+
+\bibitem[\protect\citeauthoryear{Campigotto, Passerini, and
+  Battiti}{2011}]{campigotto2011active}
+Campigotto, P.; Passerini, A.; and Battiti, R.
+\newblock 2011.
+\newblock Active learning of combinatorial features for interactive
+  optimization.
+\newblock In {\em Learning and Intelligent Optimization}. Springer.
+\newblock  336--350.
+
+\bibitem[\protect\citeauthoryear{De~Pooter, Wittocx, and
+  Denecker}{2013}]{de2013prototype}
+De~Pooter, S.; Wittocx, J.; and Denecker, M.
+\newblock 2013.
+\newblock A prototype of a knowledge-based programming environment.
+\newblock In {\em Applications of Declarative Programming and Knowledge
+  Management}. Springer.
+\newblock  279--286.
+
+\bibitem[\protect\citeauthoryear{De~Raedt and
+  Dehaspe}{1997}]{DeRaedt:ClausalDiscovery}
+De~Raedt, L., and Dehaspe, L.
+\newblock 1997.
+\newblock Clausal discovery.
+\newblock {\em Machine Learning} 26(2-3):99--146.
+
+\bibitem[\protect\citeauthoryear{Joachims}{2006}]{joachims2006training}
+Joachims, T.
+\newblock 2006.
+\newblock Training linear svms in linear time.
+\newblock In {\em Proceedings of the 12th ACM SIGKDD international conference
+  on Knowledge discovery and data mining},  217--226.
+\newblock ACM.
+
+\bibitem[\protect\citeauthoryear{Kok and Domingos}{2005}]{kok2005learning}
+Kok, S., and Domingos, P.
+\newblock 2005.
+\newblock Learning the structure of markov logic networks.
+\newblock In {\em Proceedings of the 22nd international conference on Machine
+  learning},  441--448.
+\newblock ACM.
+
+\bibitem[\protect\citeauthoryear{Kolb}{2015}]{kolb2015thesis}
+Kolb, S.
+\newblock 2015.
+\newblock Learning constraints and optimization criteria.
+\newblock Master's thesis, KULeuven.
+
+\bibitem[\protect\citeauthoryear{Lallouet \bgroup et al\mbox.\egroup
+  }{2010}]{Lallouet:LearningCP}
+Lallouet, A.; Lopez, M.; Martin, L.; and Vrain, C.
+\newblock 2010.
+\newblock On learning constraint problems.
+\newblock In {\em Tools with Artificial Intelligence (ICTAI), 2010 22nd IEEE
+  International Conference on}, volume~1,  45--52.
+\newblock IEEE.
+
+\bibitem[\protect\citeauthoryear{Metzler and Croft}{2007}]{metzler2007linear}
+Metzler, D., and Croft, W.~B.
+\newblock 2007.
+\newblock Linear feature-based models for information retrieval.
+\newblock {\em Information Retrieval} 10(3):257--274.
+
+\bibitem[\protect\citeauthoryear{Puget}{2004}]{Wallace:PrinciplesCP}
+Puget, J.-F.
+\newblock 2004.
+\newblock Constraint programming next challenge: Simplicity of use.
+\newblock In Wallace, M., ed., {\em Principles and Practice of Constraint
+  Programming - CP 2004}, volume 3258 of {\em Lecture Notes in Computer
+  Science}. Springer Berlin Heidelberg.
+\newblock  5--8.
+
+\bibitem[\protect\citeauthoryear{Wittocx, Mari{\"e}n, and
+  Denecker}{2008}]{wittocx2008idp}
+Wittocx, J.; Mari{\"e}n, M.; and Denecker, M.
+\newblock 2008.
+\newblock The idp system: a model expansion system for an extension of
+  classical logic.
+\newblock In {\em Proceedings of the 2nd Workshop on Logic and Search},
+  153--165.
+
+\end{thebibliography}
 \bibliographystyle{aaai}
 \end{document}
